@@ -31,47 +31,51 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Lado Esquerdo - Formulário */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 bg-background">
-        <div className="max-w-md w-full mx-auto">
-          {/* Logo e Título */}
-          <div className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  className="w-7 h-7 text-primary-foreground"
-                >
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">SETE ME</h1>
-                <p className="text-sm text-primary font-medium">CLOUD</p>
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-20 xl:px-32 bg-white">
+        <div className="max-w-md w-full">
+          {/* Logo */}
+          <div className="flex items-center gap-3 mb-8">
+            {/* Logo circular com listras azuis */}
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center relative overflow-hidden shadow-lg">
+              <div className="absolute inset-0 flex flex-col justify-center">
+                <div className="h-1 bg-white/30 mb-1 transform -skew-y-12"></div>
+                <div className="h-1.5 bg-white/50 mb-1 transform -skew-y-12"></div>
+                <div className="h-2 bg-white/70 mb-1 transform -skew-y-12"></div>
+                <div className="h-1.5 bg-white/50 mb-1 transform -skew-y-12"></div>
+                <div className="h-1 bg-white/30 transform -skew-y-12"></div>
               </div>
             </div>
             
-            <h2 className="text-2xl font-semibold text-foreground mb-2">
+            {/* Texto do Logo */}
+            <div className="flex items-baseline gap-2">
+              <h1 className="text-4xl font-bold text-gray-800" style={{ letterSpacing: '-0.02em' }}>
+                SETE ME
+              </h1>
+              <span className="text-xl font-medium text-blue-500">
+                CLOUD
+              </span>
+            </div>
+          </div>
+          
+          {/* Título de Boas-vindas */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-1">
               Bem Vindo(a),
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-gray-500 text-sm">
               Acesse a sua conta abaixo
             </p>
           </div>
 
           {/* Formulário */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Campo E-mail */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
+              <Label htmlFor="email" className="text-sm text-gray-700">
                 * E-mail ou Username :
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   id="email"
                   type="text"
@@ -81,14 +85,14 @@ export default function Login() {
                     setEmail(e.target.value);
                     setEmailError(false);
                   }}
-                  className={`pl-10 ${emailError ? 'border-destructive' : ''}`}
+                  className={`pl-10 h-11 border-gray-300 ${emailError ? 'border-red-500' : ''}`}
                 />
                 {emailError && (
-                  <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive" />
+                  <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />
                 )}
               </div>
               {emailError && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-red-500">
                   Entre com o seu E-mail ou Username.
                 </p>
               )}
@@ -96,11 +100,11 @@ export default function Login() {
 
             {/* Campo Senha */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
+              <Label htmlFor="password" className="text-sm text-gray-700">
                 * Senha :
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                 <Input
                   id="password"
                   type="password"
@@ -110,24 +114,24 @@ export default function Login() {
                     setPassword(e.target.value);
                     setPasswordError(false);
                   }}
-                  className={`pl-10 ${passwordError ? 'border-destructive' : ''}`}
+                  className={`pl-10 h-11 border-gray-300 ${passwordError ? 'border-red-500' : ''}`}
                 />
                 {passwordError && (
-                  <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-destructive" />
+                  <AlertCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500" />
                 )}
               </div>
               {passwordError && (
-                <p className="text-sm text-destructive">
+                <p className="text-sm text-red-500">
                   Entre com a sua senha.
                 </p>
               )}
             </div>
 
             {/* Link Esqueceu Senha */}
-            <div className="flex justify-start">
+            <div className="flex justify-start pt-1">
               <a
                 href="#"
-                className="text-sm text-primary hover:underline font-medium"
+                className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
                 onClick={(e) => {
                   e.preventDefault();
                   // Aqui poderia abrir modal de recuperação de senha
@@ -140,7 +144,7 @@ export default function Login() {
             {/* Botão Acessar */}
             <Button
               type="submit"
-              className="w-full h-12 text-base font-semibold"
+              className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 rounded-lg mt-6"
             >
               Acessar
             </Button>
@@ -154,10 +158,11 @@ export default function Login() {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: 'url(/login-medical-bg.jpg)',
+            backgroundPosition: 'center center',
           }}
         >
-          {/* Overlay escuro para melhor contraste */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/60" />
+          {/* Overlay azul sutil */}
+          <div className="absolute inset-0 bg-blue-600/20" />
         </div>
       </div>
     </div>

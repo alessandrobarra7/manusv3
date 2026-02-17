@@ -50,3 +50,10 @@
 - [x] Adicionar logo "SETE ME" na página de login
 - [x] Implementar design profissional médico-hospitalar
 - [x] Adicionar imagem médica no lado direito da tela de login
+
+## Ajustes na Página de Login
+- [x] Criar logo circular azul com listras (similar ao da referência)
+- [x] Ajustar tipografia: "SETE ME" em fonte robusta + "CLOUD" em azul claro ao lado
+- [x] Refinar estilo dos campos de input (bordas mais sutis)
+- [x] Aumentar border-radius do botão "Acessar"
+- [x] Garantir que a imagem ocupe exatamente 50% da largura da tela
