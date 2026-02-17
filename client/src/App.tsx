@@ -4,15 +4,44 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import { useAuth } from "./_core/hooks/useAuth";
+import { getLoginUrl } from "./const";
+import Dashboard from "./pages/Dashboard";
+import Units from "./pages/Units";
+import Studies from "./pages/Studies";
+import Templates from "./pages/Templates";
+
+function ProtectedRoute({ component: Component, ...rest }: any) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    window.location.href = getLoginUrl();
+    return null;
+  }
+
+  return <Component {...rest} />;
+}
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/units" component={() => <ProtectedRoute component={Units} />} />
+      <Route path="/studies" component={() => <ProtectedRoute component={Studies} />} />
+      <Route path="/templates" component={() => <ProtectedRoute component={Templates} />} />
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );

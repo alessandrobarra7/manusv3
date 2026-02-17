@@ -1,6 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  units, 
+  InsertUnit,
+  studies_cache,
+  InsertStudyCache,
+  templates,
+  InsertTemplate,
+  reports,
+  InsertReport,
+  audit_log,
+  InsertAuditLog
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -56,8 +69,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       values.role = user.role;
       updateSet.role = user.role;
     } else if (user.openId === ENV.ownerOpenId) {
-      values.role = 'admin';
-      updateSet.role = 'admin';
+      values.role = 'admin_master';
+      updateSet.role = 'admin_master';
     }
 
     if (!values.lastSignedIn) {
@@ -89,4 +102,173 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Units helpers
+export async function getAllUnits() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(units);
+}
+
+export async function getUnitById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(units).where(eq(units.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUnitBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(units).where(eq(units.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUnit(unit: InsertUnit) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(units).values(unit);
+  return Number(result[0].insertId);
+}
+
+export async function updateUnit(id: number, data: Partial<InsertUnit>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(units).set(data).where(eq(units.id, id));
+}
+
+export async function deleteUnit(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(units).where(eq(units.id, id));
+}
+
+// Studies cache helpers
+export async function getStudiesByUnitId(unitId: number, filters?: {
+  patient_name?: string;
+  modality?: string;
+  study_date?: string;
+  accession_number?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const query = db.select().from(studies_cache).where(eq(studies_cache.unit_id, unitId));
+  
+  if (filters?.limit && filters?.offset) {
+    return await query.limit(filters.limit).offset(filters.offset);
+  } else if (filters?.limit) {
+    return await query.limit(filters.limit);
+  } else if (filters?.offset) {
+    return await query.offset(filters.offset);
+  }
+  
+  return await query;
+}
+
+export async function getStudyById(id: number, unitId?: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const conditions = [eq(studies_cache.id, id)];
+  if (unitId !== undefined) {
+    conditions.push(eq(studies_cache.unit_id, unitId));
+  }
+  
+  const result = await db.select().from(studies_cache).where(and(...conditions)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createStudyCache(study: InsertStudyCache) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(studies_cache).values(study);
+  return Number(result[0].insertId);
+}
+
+// Templates helpers
+export async function getTemplatesByUnitId(unitId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(templates).where(eq(templates.unit_id, unitId));
+}
+
+export async function getGlobalTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(templates).where(eq(templates.isGlobal, true));
+}
+
+export async function getTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(templates).where(eq(templates.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createTemplate(template: InsertTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(templates).values(template);
+  return Number(result[0].insertId);
+}
+
+export async function updateTemplate(id: number, data: Partial<InsertTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(templates).set(data).where(eq(templates.id, id));
+}
+
+export async function deleteTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(templates).where(eq(templates.id, id));
+}
+
+// Reports helpers
+export async function getReportsByUnitId(unitId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(reports).where(eq(reports.unit_id, unitId));
+}
+
+export async function getReportByStudyId(studyId: number, unitId?: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const conditions = [eq(reports.study_id, studyId)];
+  if (unitId !== undefined) {
+    conditions.push(eq(reports.unit_id, unitId));
+  }
+  
+  const result = await db.select().from(reports).where(and(...conditions)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createReport(report: InsertReport) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(reports).values(report);
+  return Number(result[0].insertId);
+}
+
+export async function updateReport(id: number, data: Partial<InsertReport>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(reports).set(data).where(eq(reports.id, id));
+}
+
+// Audit log helpers
+export async function createAuditLog(log: InsertAuditLog) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(audit_log).values(log);
+}

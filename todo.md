@@ -1,0 +1,46 @@
+# PACS Portal - TODO List
+
+## FASE 0 - Estruturação do banco de dados e modelos
+- [x] Criar schema completo do banco de dados (units, users, studies_cache, reports, templates, audit_log)
+- [x] Gerar e aplicar migrações do banco de dados
+- [x] Criar helpers de banco de dados para cada entidade
+
+## FASE 1 - Autenticação JWT e RBAC multi-tenant
+- [x] Implementar sistema de roles (admin_master, admin_unit, radiologist, referring_doctor)
+- [x] Adicionar campo unit_id na tabela users
+- [x] Criar middleware de autorização por unidade
+- [x] Implementar procedures protegidos por role (adminProcedure, unitAdminProcedure)
+- [x] Validar segregação de dados por unit_id
+
+## FASE 2 - Dashboard e gestão de unidades médicas
+- [x] Criar CRUD de unidades (name, slug, orthanc_base_url, orthanc_basic_user, orthanc_basic_pass)
+- [x] Implementar dashboard com métricas (total estudos, laudos pendentes, últimos acessos)
+- [ ] Criar interface de gestão de usuários vinculados a unidades
+- [x] Implementar filtros por unidade em todas as queries
+
+## FASE 3 - Sistema de estudos DICOM e templates de laudos
+- [x] Criar sistema de cache de estudos (studies_cache) com dados mock
+- [x] Implementar busca e listagem de estudos com filtros (patient_name, modality, study_date, accession_number)
+- [x] Criar CRUD de templates de laudos por unidade/modalidade
+- [ ] Implementar editor de laudos com rascunho automático
+- [x] Adicionar sistema de histórico de versões de laudos
+
+## FASE 4 - Proxy DICOMweb e integração OHIF Viewer
+- [ ] Implementar proxy DICOMweb (/dicomweb/{unitSlug}/qido, /dicomweb/{unitSlug}/wado)
+- [ ] Criar cliente Orthanc no backend com autenticação
+- [ ] Integrar OHIF Viewer v3 no frontend
+- [ ] Conectar OHIF com proxy DICOMweb do portal
+- [ ] Substituir dados mock por consultas reais ao Orthanc
+
+## FASE 5 - Sistema de auditoria e geração de PDFs
+- [ ] Implementar tabela audit_log (user_id, unit_id, action, target_type, target_id, ip_address, user_agent, timestamp)
+- [ ] Registrar eventos de auditoria (LOGIN, VIEW_STUDY, OPEN_VIEWER, CREATE_REPORT, UPDATE_REPORT)
+- [ ] Criar geração de PDF de laudos com logo da unidade
+- [ ] Implementar assinatura digital de laudos
+
+## FASE 6 - Testes e entrega final
+- [ ] Criar testes unitários para procedures críticos
+- [ ] Testar segregação de dados entre unidades
+- [ ] Validar fluxo completo de autenticação e autorização
+- [ ] Documentar instalação e configuração
+- [ ] Criar scripts de seed para dados iniciais
