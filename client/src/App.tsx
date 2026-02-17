@@ -5,14 +5,16 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useAuth } from "./_core/hooks/useAuth";
-import { getLoginUrl } from "./const";
 import Dashboard from "./pages/Dashboard";
 import Units from "./pages/Units";
 import Studies from "./pages/Studies";
 import Templates from "./pages/Templates";
+import Login from "./pages/Login";
+import { useLocation } from "wouter";
 
 function ProtectedRoute({ component: Component, ...rest }: any) {
   const { isAuthenticated, loading } = useAuth();
+  const [, setLocation] = useLocation();
 
   if (loading) {
     return (
@@ -26,7 +28,7 @@ function ProtectedRoute({ component: Component, ...rest }: any) {
   }
 
   if (!isAuthenticated) {
-    window.location.href = getLoginUrl();
+    setLocation("/login");
     return null;
   }
 
@@ -36,6 +38,7 @@ function ProtectedRoute({ component: Component, ...rest }: any) {
 function Router() {
   return (
     <Switch>
+      <Route path="/login" component={Login} />
       <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/units" component={() => <ProtectedRoute component={Units} />} />

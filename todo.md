@@ -44,3 +44,9 @@
 - [ ] Validar fluxo completo de autenticação e autorização
 - [ ] Documentar instalação e configuração
 - [ ] Criar scripts de seed para dados iniciais
+
+## Customização de Interface
+- [x] Criar página de login personalizada com layout 50/50 (formulário esquerdo + imagem direita)
+- [x] Adicionar logo "SETE ME" na página de login
+- [x] Implementar design profissional médico-hospitalar
+- [x] Adicionar imagem médica no lado direito da tela de login
