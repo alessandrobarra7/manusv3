@@ -371,6 +371,63 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  pacs: router({
+    query: protectedProcedure
+      .input(z.object({
+        patientName: z.string().optional(),
+        patientId: z.string().optional(),
+        modality: z.string().optional(),
+        studyDate: z.string().optional(),
+        accessionNumber: z.string().optional(),
+        studyDescription: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // TODO: Implement actual DICOM C-FIND query to Orthanc
+        // For now, return mock data to demonstrate the interface
+        
+        await createAuditLog({
+          user_id: ctx.user.id,
+          unit_id: ctx.user.unit_id,
+          action: 'PACS_QUERY',
+          target_type: 'PACS',
+          target_id: 'PACSML',
+          ip_address: ctx.req.ip,
+          user_agent: ctx.req.headers['user-agent'],
+          metadata: input,
+        });
+        
+        // Mock response - will be replaced with actual Orthanc query
+        return {
+          success: true,
+          studies: [],
+          message: 'Funcionalidade de query PACS em desenvolvimento. Integração com Orthanc será implementada.',
+        };
+      }),
+    
+    download: protectedProcedure
+      .input(z.object({
+        studyInstanceUid: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // TODO: Implement C-MOVE to download study from remote PACS to local Orthanc
+        
+        await createAuditLog({
+          user_id: ctx.user.id,
+          unit_id: ctx.user.unit_id,
+          action: 'PACS_DOWNLOAD',
+          target_type: 'STUDY',
+          target_id: input.studyInstanceUid,
+          ip_address: ctx.req.ip,
+          user_agent: ctx.req.headers['user-agent'],
+        });
+        
+        return {
+          success: true,
+          message: 'Download iniciado',
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

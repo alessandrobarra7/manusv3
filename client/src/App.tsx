@@ -10,6 +10,8 @@ import Units from "./pages/Units";
 import Studies from "./pages/Studies";
 import Templates from "./pages/Templates";
 import Login from "./pages/Login";
+import { ViewerPage } from "./pages/ViewerPage";
+import { PacsQueryPage } from "./pages/PacsQueryPage";
 import { useLocation } from "wouter";
 
 function ProtectedRoute({ component: Component, ...rest }: any) {
@@ -44,6 +46,8 @@ function Router() {
       <Route path="/units" component={() => <ProtectedRoute component={Units} />} />
       <Route path="/studies" component={() => <ProtectedRoute component={Studies} />} />
       <Route path="/templates" component={() => <ProtectedRoute component={Templates} />} />
+      <Route path="/viewer/:studyId" component={() => <ProtectedRoute component={ViewerPage} />} />
+      <Route path="/pacs-query" component={() => <ProtectedRoute component={PacsQueryPage} />} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

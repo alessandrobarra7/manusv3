@@ -175,3 +175,24 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 **Última atualização:** 23/02/2026
 **Status:** Frontend original restaurado e funcionando
 **Próximo passo:** Implementar Visualizador DICOM
+
+---
+
+## 📝 Changelog de Implementações
+
+### 23/02/2026 - Visualizador DICOM (Estrutura Base)
+- [x] Criada página ViewerPage.tsx com estrutura para integração OHIF
+- [x] Adicionada rota `/viewer/:studyId` no App.tsx
+- [x] Integrado botão de visualização na listagem de estudos
+- [x] Documentação das funcionalidades planejadas na página do visualizador
+- [ ] Pendente: Configurar instância OHIF Viewer
+- [ ] Pendente: Integrar com backend Orthanc via DICOMweb
+
+### 23/02/2026 - PACS Query & Retrieve (Interface Implementada)
+- [x] Criar endpoint tRPC para query PACS (estrutura base)
+- [x] Implementar PacsQueryPage com filtros (nome, modalidade, data, ID paciente, accession, descrição)
+- [x] Criar tabela de resultados similar ao visualizador de referência
+- [x] Integrar botão de visualização com OHIF Viewer
+- [x] Adicionar auditoria de queries PACS (PACS_QUERY, PACS_DOWNLOAD)
+- [ ] Pendente: Implementar C-FIND real no Orthanc (179.67.254.135:11112 - PACSML)
+- [ ] Pendente: Implementar C-MOVE para download de estudos

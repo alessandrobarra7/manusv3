@@ -26,16 +26,7 @@ export default function Studies() {
     setFilters({ ...filters, page: 1 });
   };
 
-  const handleViewerClick = async (studyId: number) => {
-    try {
-      const result = await trpc.studies.openViewer.useMutation().mutateAsync({ studyId });
-      toast.success("Abrindo visualizador...");
-      // Aqui seria redirecionado para o OHIF Viewer
-      window.open(result.viewerUrl, '_blank');
-    } catch (error: any) {
-      toast.error(error.message || "Erro ao abrir visualizador");
-    }
-  };
+  // Viewer navigation handled by Link component
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,18 +146,16 @@ export default function Studies() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Link href={`/studies/${study.id}`}>
-                            <Button variant="ghost" size="sm">
+                          <Link href={`/viewer/${study.id}`}>
+                            <Button variant="ghost" size="sm" title="Abrir Visualizador DICOM">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewerClick(study.id)}
-                          >
-                            <FileText className="h-4 w-4" />
-                          </Button>
+                          <Link href={`/reports/${study.id}`}>
+                            <Button variant="ghost" size="sm" title="Criar/Editar Laudo">
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          </Link>
                         </div>
                       </TableCell>
                     </TableRow>
