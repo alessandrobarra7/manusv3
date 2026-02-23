@@ -234,14 +234,25 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Testar integração - **Resultado**: OHIF requer DICOMweb no Orthanc
 - **Decisão**: Implementar visualizador integrado no portal (cornerstone.js) ao invés de OHIF externo
 
-### 23/02/2026 - Redesign PACS Query + Visualizador Integrado (Em Desenvolvimento)
-- [ ] Redesenhar PacsQueryPage com layout baseado na imagem de referência
-- [ ] Adicionar ações coloridas por linha (Visualizar, Laudar, Imprimir, Arquivar, Excluir, Aprovar, Compartilhar)
-- [ ] Implementar coluna de Ações com ícones coloridos
-- [ ] Reorganizar colunas: Ações | Paciente | Exame
-- [ ] Adicionar filtros avançados no topo (Período, Status, Modalidades com checkboxes)
+### 23/02/2026 - Redesign Interface Busca PACS (Concluído ✅)
+- [x] Redesenhar PacsQueryPage com layout baseado na imagem de referência
+- [x] Adicionar ações coloridas por linha:
+  - 🟪 Visualizar (ícone olho roxo)
+  - 📁 Arquivar (ícone pasta cinza)
+  - 💖 Laudar (ícone edição rosa)
+  - 🔴 Excluir (ícone lixeira vermelho)
+  - 🟢 Aprovar (ícone check verde)
+  - 🔵 Compartilhar (ícone share azul)
+  - ⋯ Mais opções, Info paciente, Segurança
+- [x] Implementar coluna de Ações com 9 ícones coloridos
+- [x] Reorganizar colunas: Ações | Data de Realização | Nome do Paciente | Descrição do Exame
+- [x] Adicionar filtros avançados no topo (Período, Status, Modalidades)
+- [x] Corrigir formatação de nomes (remover caracteres ^)
+- [x] Simplificar colunas conforme solicitado
+
+### Próxima Fase - Visualizador Integrado
 - [ ] Implementar visualizador cornerstone.js integrado no portal
-- [ ] Buscar imagens DICOM via WADO do Orthanc usando IP:porta:AETitle
+- [ ] Buscar imagens DICOM via WADO do Orthanc
 - [ ] Criar componente DicomViewer com cornerstone-core
 - [ ] Adicionar ferramentas básicas (zoom, pan, windowing)
 - [ ] Testar visualização de imagens reais do PACS
