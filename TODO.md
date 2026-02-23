@@ -226,3 +226,22 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Testar busca real no Orthanc (44 estudos encontrados com sucesso!)
 - [x] Implementar tratamento de erros DICOM
 - [x] Logs de auditoria já implementados (PACS_QUERY action)
+
+### 23/02/2026 - Tentativa OHIF Viewer (Descontinuado)
+- [x] Criar endpoint tRPC pacs.getViewerUrl para gerar URL OHIF
+- [x] Implementar ViewerPage.tsx com redirecionamento para OHIF
+- [x] Conectar botão "Visualizar" ao endpoint
+- [x] Testar integração - **Resultado**: OHIF requer DICOMweb no Orthanc
+- **Decisão**: Implementar visualizador integrado no portal (cornerstone.js) ao invés de OHIF externo
+
+### 23/02/2026 - Redesign PACS Query + Visualizador Integrado (Em Desenvolvimento)
+- [ ] Redesenhar PacsQueryPage com layout baseado na imagem de referência
+- [ ] Adicionar ações coloridas por linha (Visualizar, Laudar, Imprimir, Arquivar, Excluir, Aprovar, Compartilhar)
+- [ ] Implementar coluna de Ações com ícones coloridos
+- [ ] Reorganizar colunas: Ações | Paciente | Exame
+- [ ] Adicionar filtros avançados no topo (Período, Status, Modalidades com checkboxes)
+- [ ] Implementar visualizador cornerstone.js integrado no portal
+- [ ] Buscar imagens DICOM via WADO do Orthanc usando IP:porta:AETitle
+- [ ] Criar componente DicomViewer com cornerstone-core
+- [ ] Adicionar ferramentas básicas (zoom, pan, windowing)
+- [ ] Testar visualização de imagens reais do PACS

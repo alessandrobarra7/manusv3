@@ -500,6 +500,62 @@ export const appRouter = router({
         }
       }),
     
+    getViewerUrl: protectedProcedure
+      .input(z.object({
+        studyInstanceUid: z.string(),
+      }))
+      .query(async ({ input, ctx }) => {
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Database não disponível',
+          });
+        }
+        
+        // Get user's unit to access PACS configuration
+        const [unit] = await db.select().from(units).where(eq(units.id, ctx.user.unit_id!)).limit(1);
+        
+        if (!unit) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Unidade não encontrada',
+          });
+        }
+        
+        // Check if PACS connection is configured
+        if (!unit.pacs_ip || !unit.pacs_port) {
+          throw new TRPCError({
+            code: 'PRECONDITION_FAILED',
+            message: 'PACS não configurado para esta unidade.',
+          });
+        }
+        
+        // Generate OHIF Viewer URL with DICOMweb datasource
+        // Assuming Orthanc has DICOMweb plugin enabled on port 8042
+        const dicomwebUrl = `http://${unit.pacs_ip}:8042/dicom-web`;
+        const ohifUrl = `https://viewer.ohif.org/viewer?url=dicomweb:${encodeURIComponent(dicomwebUrl)}&StudyInstanceUIDs=${encodeURIComponent(input.studyInstanceUid)}`;
+        
+        // Log audit
+        await createAuditLog({
+          user_id: ctx.user.id,
+          unit_id: ctx.user.unit_id,
+          action: 'OPEN_VIEWER',
+          target_type: 'STUDY',
+          target_id: input.studyInstanceUid,
+          ip_address: ctx.req.ip,
+          user_agent: ctx.req.headers['user-agent'],
+          metadata: {
+            pacs_ip: unit.pacs_ip,
+          },
+        });
+        
+        return {
+          viewerUrl: ohifUrl,
+          studyInstanceUid: input.studyInstanceUid,
+        };
+      }),
+    
     download: protectedProcedure
       .input(z.object({
         studyInstanceUid: z.string(),

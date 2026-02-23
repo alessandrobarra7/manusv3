@@ -1,150 +1,103 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { Card } from '@/components/ui/card';
+import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Maximize2, Minimize2 } from 'lucide-react';
+import { ArrowLeft, Loader2, ExternalLink } from 'lucide-react';
 
 export function ViewerPage() {
   const params = useParams();
   const [, setLocation] = useLocation();
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const studyInstanceUid = params.studyId || '';
   const [viewerUrl, setViewerUrl] = useState<string>('');
 
-  const studyId = params.studyId;
+  const { data, isLoading, error } = trpc.pacs.getViewerUrl.useQuery(
+    { studyInstanceUid },
+    { enabled: !!studyInstanceUid }
+  );
 
   useEffect(() => {
-    // Construct OHIF viewer URL
-    // In production, this would point to your OHIF instance
-    // For now, we'll use a placeholder that shows the integration structure
-    if (studyId) {
-      // Example: OHIF viewer URL with study instance UID
-      // const ohifUrl = `http://localhost:3001/viewer?StudyInstanceUIDs=${studyId}`;
-      // For demo purposes, we'll show a message
-      setViewerUrl(`/api/viewer/${studyId}`);
+    if (data?.viewerUrl) {
+      setViewerUrl(data.viewerUrl);
+      // Redirect to OHIF Viewer in new tab
+      window.open(data.viewerUrl, '_blank');
     }
-  }, [studyId]);
+  }, [data]);
 
-  const toggleFullscreen = () => {
-    if (!isFullscreen) {
-      document.documentElement.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
-    setIsFullscreen(!isFullscreen);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Carregando visualizador DICOM...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleBack = () => {
-    setLocation('/studies');
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container flex items-center justify-between py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar para Estudos
-            </Button>
-            <div className="h-6 w-px bg-border" />
-            <div>
-              <h1 className="text-lg font-semibold">Visualizador DICOM</h1>
-              <p className="text-sm text-muted-foreground">
-                Estudo ID: {studyId}
-              </p>
-            </div>
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center max-w-md">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
+            <h2 className="text-lg font-semibold text-red-900 mb-2">Erro ao Carregar Visualizador</h2>
+            <p className="text-sm text-red-700">{error.message}</p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleFullscreen}
-          >
-            {isFullscreen ? (
-              <>
-                <Minimize2 className="h-4 w-4 mr-2" />
-                Sair do Fullscreen
-              </>
-            ) : (
-              <>
-                <Maximize2 className="h-4 w-4 mr-2" />
-                Fullscreen
-              </>
-            )}
+          <Button onClick={() => setLocation('/pacs-query')} variant="outline">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar para Busca
           </Button>
         </div>
       </div>
+    );
+  }
 
-      {/* Viewer Container */}
-      <div className="container py-6">
-        <Card className="p-8 text-center min-h-[600px] flex flex-col items-center justify-center">
-          <div className="max-w-2xl space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Visualizador DICOM - Em Desenvolvimento</h2>
-              <p className="text-muted-foreground">
-                O visualizador DICOM será integrado com OHIF Viewer (Open Health Imaging Foundation)
-              </p>
-            </div>
-
-            <div className="bg-muted p-6 rounded-lg text-left space-y-4">
-              <h3 className="font-semibold text-lg">Funcionalidades Planejadas:</h3>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Visualização de imagens DICOM com suporte a múltiplas modalidades</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Ferramentas de medição (distância, ângulo, área, ROI)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Ajuste de windowing (brilho/contraste) com presets</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Navegação entre séries e instâncias</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Zoom, pan, rotação e inversão de imagens</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Anotações e marcações</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Comparação lado a lado de estudos</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Exportação de imagens e cine loops</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary">✓</span>
-                  <span>Integração com Orthanc via DICOMweb</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
-              <p className="text-sm text-blue-900 dark:text-blue-100">
-                <strong>Próximos Passos:</strong> Configurar instância OHIF Viewer e integrar com backend Orthanc
-              </p>
-            </div>
-
-            <div className="pt-4">
-              <Button onClick={handleBack}>
-                Voltar para Lista de Estudos
-              </Button>
-            </div>
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+      <div className="max-w-2xl w-full bg-white rounded-lg shadow-sm border p-8">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+            <ExternalLink className="h-8 w-8 text-blue-600" />
           </div>
-        </Card>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Visualizador DICOM</h1>
+          <p className="text-gray-600">
+            O visualizador OHIF foi aberto em uma nova aba do navegador.
+          </p>
+        </div>
+
+        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          <div className="text-sm text-gray-600 mb-2">
+            <strong>Study Instance UID:</strong>
+          </div>
+          <code className="text-xs text-gray-800 break-all bg-white px-3 py-2 rounded border block">
+            {studyInstanceUid}
+          </code>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {viewerUrl && (
+            <Button 
+              onClick={() => window.open(viewerUrl, '_blank')} 
+              className="w-full"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Abrir Visualizador Novamente
+            </Button>
+          )}
+          <Button 
+            onClick={() => setLocation('/pacs-query')} 
+            variant="outline"
+            className="w-full"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar para Busca PACS
+          </Button>
+        </div>
+
+        <div className="mt-6 pt-6 border-t">
+          <p className="text-xs text-gray-500 text-center">
+            Caso a aba não tenha aberto automaticamente, clique no botão acima para abrir o visualizador.
+          </p>
+        </div>
       </div>
     </div>
   );
