@@ -204,3 +204,13 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Ajustar rota inicial (/) para redirecionar para /pacs-query após login
 - [x] Remover Dashboard como tela principal
 - [x] Testar fluxo: Login → Busca de Exames PACS
+
+### 23/02/2026 - Redesign PACS Query - Layout Compacto Profissional (Concluído)
+- [x] Redesenhar PacsQueryPage com layout compacto (estilo software, não website)
+- [x] Filtros em linha horizontal grid 12 colunas
+- [x] Tabela densa com linhas menores (py-2) e tipografia xs
+- [x] Reduzir espaçamentos e paddings (h-8 inputs, h-9 headers)
+- [x] Tipografia menor e mais profissional (text-xs, text-[11px])
+- [x] Cores neutras (gray-50 bg, gray-700 text)
+- [x] Header compacto com contador de resultados
+- [x] Botões de ação compactos (h-7 w-7)
