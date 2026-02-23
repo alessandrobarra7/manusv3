@@ -256,3 +256,17 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [ ] Criar componente DicomViewer com cornerstone-core
 - [ ] Adicionar ferramentas básicas (zoom, pan, windowing)
 - [ ] Testar visualização de imagens reais do PACS
+
+### 23/02/2026 - Reorganização Interface Busca PACS (Concluído ✅)
+- [x] Alterar barra de título: remover dados PACS, adicionar boas-vindas com nome da unidade
+- [x] Simplificar filtros: manter apenas Nome do Paciente e Data
+- [x] Adicionar botões rápidos: Exames de Hoje, Período (dropdown: Hoje/7dias/30dias/Todos), Plantão
+- [x] Remover filtros: ID do Paciente, Modalidade, Accession Number
+- [x] Reordenar colunas da tabela:
+  1. Data de Realização (com horário)
+  2. Nome do Paciente (com descrição do exame e modalidade)
+  3. Visualizador (botão "Ver" roxo)
+  4. Laudar (botão "Laudar" rosa)
+  5. Médico (nome + CRM)
+  6. Status de Laudo (Pendente/Em Andamento/Concluído com cores)
+- [x] Remover botões de ações não utilizados (Arquivar, Excluir, Aprovar, Compartilhar, etc.)

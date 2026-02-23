@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,18 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Search, 
   Eye, 
-  FileText, 
-  Archive, 
-  Trash2, 
-  CheckCircle, 
-  Share2, 
-  MoreVertical,
-  User,
-  Shield,
-  RefreshCw,
-  Calendar
+  FileText,
+  Calendar,
+  Clock
 } from "lucide-react";
-import { Link } from "wouter";
 import { toast } from "sonner";
 import {
   Select,
@@ -28,17 +20,32 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+
 export function PacsQueryPage() {
+  const { data: user } = trpc.auth.me.useQuery();
+  const [unitName, setUnitName] = useState("Carregando...");
+  
   const [filters, setFilters] = useState({
     patientName: "",
-    patientId: "",
-    modality: "ALL",
     studyDate: "",
-    accessionNumber: "",
+    period: "today", // today, 7days, 30days, all
+    shift: false, // plantão
   });
 
   const [queryResults, setQueryResults] = useState<any[]>([]);
   const [isQuerying, setIsQuerying] = useState(false);
+
+  // Get unit info
+  const { data: unitData } = trpc.units.getById.useQuery(
+    { id: user?.unit_id || 0 },
+    { enabled: !!user?.unit_id }
+  );
+
+  useEffect(() => {
+    if (unitData) {
+      setUnitName(unitData.name || "Unidade");
+    }
+  }, [unitData]);
 
   // Query PACS mutation
   const queryPacs = trpc.pacs.query.useMutation({
@@ -57,15 +64,51 @@ export function PacsQueryPage() {
     setIsQuerying(true);
     queryPacs.mutate({
       patientName: filters.patientName,
-      patientId: filters.patientId,
-      modality: filters.modality,
+      patientId: "",
+      modality: "ALL",
       studyDate: filters.studyDate,
-      accessionNumber: filters.accessionNumber,
+      accessionNumber: "",
     });
   };
 
-  const handleAction = (action: string, study: any) => {
-    toast.info(`Ação "${action}" em desenvolvimento para: ${study.patientName}`);
+  const handleTodayExams = () => {
+    const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+    setFilters({ ...filters, studyDate: today, period: "today" });
+    setIsQuerying(true);
+    queryPacs.mutate({
+      patientName: "",
+      patientId: "",
+      modality: "ALL",
+      studyDate: today,
+      accessionNumber: "",
+    });
+  };
+
+  const handleVisualize = (study: any) => {
+    toast.info(`Visualizador em desenvolvimento para: ${study.patientName}`);
+  };
+
+  const handleReport = (study: any) => {
+    toast.info(`Laudo em desenvolvimento para: ${study.patientName}`);
+  };
+
+  const getReportStatus = (study: any) => {
+    // Mock status - será implementado com dados reais
+    const statuses = ["Pendente", "Em Andamento", "Concluído"];
+    return statuses[Math.floor(Math.random() * statuses.length)];
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Pendente":
+        return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      case "Em Andamento":
+        return "bg-blue-100 text-blue-800 border-blue-300";
+      case "Concluído":
+        return "bg-green-100 text-green-800 border-green-300";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-300";
+    }
   };
 
   return (
@@ -75,299 +118,217 @@ export function PacsQueryPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold text-gray-900">Exames</h1>
-            <p className="text-xs text-gray-500 mt-0.5">
-              PACS: 179.67.254.135:11112 (PACSML)
+            <p className="text-xs text-gray-600 mt-0.5">
+              Bem-vindo à {unitName}
             </p>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm font-medium text-gray-900">
             {queryResults.length} estudo(s) encontrado(s)
           </div>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Simplified Filters */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="grid grid-cols-12 gap-3 mb-3">
+        <div className="flex items-end gap-3 mb-3">
           {/* Patient Name */}
-          <div className="col-span-3">
+          <div className="flex-1">
             <label className="text-xs font-medium text-gray-700 mb-1 block">
               Nome do Paciente
             </label>
             <Input
-              placeholder="Digite o nome..."
+              placeholder="Digite o nome do paciente..."
               value={filters.patientName}
               onChange={(e) => setFilters({ ...filters, patientName: e.target.value })}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
             />
           </div>
 
-          {/* Patient ID */}
-          <div className="col-span-2">
+          {/* Date */}
+          <div className="w-48">
             <label className="text-xs font-medium text-gray-700 mb-1 block">
-              ID do Paciente
-            </label>
-            <Input
-              placeholder="ID..."
-              value={filters.patientId}
-              onChange={(e) => setFilters({ ...filters, patientId: e.target.value })}
-              className="h-8 text-xs"
-            />
-          </div>
-
-          {/* Modality */}
-          <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-700 mb-1 block">
-              Modalidade
-            </label>
-            <Select value={filters.modality} onValueChange={(value) => setFilters({ ...filters, modality: value })}>
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">Todas</SelectItem>
-                <SelectItem value="CR">CR - Radiografia Computadorizada</SelectItem>
-                <SelectItem value="CT">CT - Tomografia</SelectItem>
-                <SelectItem value="MR">MR - Ressonância Magnética</SelectItem>
-                <SelectItem value="US">US - Ultrassom</SelectItem>
-                <SelectItem value="DX">DX - Raio-X Digital</SelectItem>
-                <SelectItem value="MG">MG - Mamografia</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Study Date */}
-          <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-700 mb-1 block">
-              Data do Estudo
+              Data
             </label>
             <Input
               type="date"
               value={filters.studyDate}
               onChange={(e) => setFilters({ ...filters, studyDate: e.target.value })}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
             />
           </div>
 
-          {/* Accession Number */}
-          <div className="col-span-2">
-            <label className="text-xs font-medium text-gray-700 mb-1 block">
-              Accession Number
-            </label>
-            <Input
-              placeholder="Accession..."
-              value={filters.accessionNumber}
-              onChange={(e) => setFilters({ ...filters, accessionNumber: e.target.value })}
-              className="h-8 text-xs"
-            />
-          </div>
+          {/* Today Button */}
+          <Button 
+            variant="outline"
+            onClick={handleTodayExams}
+            className="h-9 px-4 text-sm"
+          >
+            <Calendar className="h-4 w-4 mr-2" />
+            Exames de Hoje
+          </Button>
 
-          {/* Search Button */}
-          <div className="col-span-1 flex items-end">
-            <Button 
-              onClick={handleSearch} 
-              disabled={isQuerying}
-              className="h-8 w-full text-xs"
-            >
-              {isQuerying ? (
-                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Search className="h-3.5 w-3.5" />
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Period and Status Filters */}
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-3.5 w-3.5 text-gray-500" />
-            <span className="text-gray-600">Período:</span>
-            <Select defaultValue="30">
-              <SelectTrigger className="h-7 w-28 text-xs">
-                <SelectValue />
+          {/* Period Dropdown */}
+          <div className="w-36">
+            <Select value={filters.period} onValueChange={(value) => setFilters({ ...filters, period: value })}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder="Período" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="today">Hoje</SelectItem>
-                <SelectItem value="7">7 Dias</SelectItem>
-                <SelectItem value="30">30 Dias</SelectItem>
+                <SelectItem value="7days">7 Dias</SelectItem>
+                <SelectItem value="30days">30 Dias</SelectItem>
                 <SelectItem value="all">Todos</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-gray-600">Status:</span>
-            <div className="flex gap-1">
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-100">Todos</Badge>
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-100">Não Assinados</Badge>
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-100">Prioridades</Badge>
-              <Badge variant="outline" className="text-xs cursor-pointer hover:bg-gray-100">Plantão</Badge>
-            </div>
-          </div>
+          {/* Shift Button */}
+          <Button 
+            variant={filters.shift ? "default" : "outline"}
+            onClick={() => setFilters({ ...filters, shift: !filters.shift })}
+            className="h-9 px-4 text-sm"
+          >
+            <Clock className="h-4 w-4 mr-2" />
+            Plantão
+          </Button>
+
+          {/* Search Button */}
+          <Button 
+            onClick={handleSearch} 
+            disabled={isQuerying}
+            className="h-9 px-6 text-sm"
+          >
+            {isQuerying ? (
+              <>
+                <Search className="h-4 w-4 mr-2 animate-spin" />
+                Buscando...
+              </>
+            ) : (
+              <>
+                <Search className="h-4 w-4 mr-2" />
+                Buscar
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
       {/* Results Table */}
       <div className="px-6 py-4">
         {queryResults.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-            <Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">Nenhum estudo encontrado</p>
-            <p className="text-gray-400 text-xs mt-1">Use os filtros acima para buscar estudos</p>
+          <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
+            <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-600 text-base font-medium">Nenhum estudo encontrado</p>
+            <p className="text-gray-400 text-sm mt-2">Use os filtros acima para buscar estudos</p>
+            <Button 
+              onClick={handleTodayExams}
+              variant="outline"
+              className="mt-4"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Ver Exames de Hoje
+            </Button>
           </div>
         ) : (
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50">
-                  <TableHead className="py-2 text-[11px] font-semibold text-gray-700 w-[200px]">
-                    Ações
-                  </TableHead>
-                  <TableHead className="py-2 text-[11px] font-semibold text-gray-700 w-[140px]">
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[140px]">
                     Data de Realização
                   </TableHead>
-                  <TableHead className="py-2 text-[11px] font-semibold text-gray-700">
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700">
                     Nome do Paciente
                   </TableHead>
-                  <TableHead className="py-2 text-[11px] font-semibold text-gray-700">
-                    Descrição do Exame
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[120px] text-center">
+                    Visualizador
+                  </TableHead>
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[120px] text-center">
+                    Laudar
+                  </TableHead>
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[180px]">
+                    Médico
+                  </TableHead>
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[140px]">
+                    Status de Laudo
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {queryResults.map((study, index) => (
-                  <TableRow key={index} className="hover:bg-gray-50 border-b border-gray-100">
-                    {/* Actions Column */}
-                    <TableCell className="py-2">
-                      <div className="flex items-center gap-1">
-                        {/* Visualizar - Purple */}
+                {queryResults.map((study, index) => {
+                  const status = getReportStatus(study);
+                  return (
+                    <TableRow key={index} className="hover:bg-gray-50 border-b border-gray-100">
+                      {/* Date Column */}
+                      <TableCell className="py-3">
+                        <div className="text-sm font-medium text-gray-900">
+                          {study.studyDate ? 
+                            new Date(study.studyDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).toLocaleDateString('pt-BR') 
+                            : "-"}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {study.studyTime || ""}
+                        </div>
+                      </TableCell>
+
+                      {/* Patient Name Column */}
+                      <TableCell className="py-3">
+                        <div className="text-sm font-medium text-gray-900">
+                          {study.patientName ? study.patientName.replace(/\^/g, ' ') : "-"}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {study.studyDescription || "Sem descrição"} • {study.modality || "-"}
+                        </div>
+                      </TableCell>
+
+                      {/* Visualizer Button */}
+                      <TableCell className="py-3 text-center">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="h-8 w-8 p-0 hover:bg-purple-100"
-                          title="Visualizar"
-                          onClick={() => handleAction("Visualizar", study)}
+                          className="h-8 px-3 hover:bg-purple-50 hover:border-purple-300"
+                          onClick={() => handleVisualize(study)}
                         >
-                          <Eye className="h-4 w-4 text-purple-600" />
+                          <Eye className="h-4 w-4 mr-1.5 text-purple-600" />
+                          <span className="text-xs">Ver</span>
                         </Button>
+                      </TableCell>
 
-                        {/* Arquivar - Gray */}
+                      {/* Report Button */}
+                      <TableCell className="py-3 text-center">
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="h-8 w-8 p-0 hover:bg-gray-100"
-                          title="Arquivar"
-                          onClick={() => handleAction("Arquivar", study)}
+                          className="h-8 px-3 hover:bg-pink-50 hover:border-pink-300"
+                          onClick={() => handleReport(study)}
                         >
-                          <Archive className="h-4 w-4 text-gray-600" />
+                          <FileText className="h-4 w-4 mr-1.5 text-pink-600" />
+                          <span className="text-xs">Laudar</span>
                         </Button>
+                      </TableCell>
 
-                        {/* Laudar - Pink */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-pink-100"
-                          title="Laudar"
-                          onClick={() => handleAction("Laudar", study)}
+                      {/* Doctor Column */}
+                      <TableCell className="py-3">
+                        <div className="text-sm text-gray-900">
+                          {user?.name || "-"}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          CRM: {user?.id || "-"}
+                        </div>
+                      </TableCell>
+
+                      {/* Report Status Column */}
+                      <TableCell className="py-3">
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs px-2.5 py-1 font-medium ${getStatusColor(status)}`}
                         >
-                          <FileText className="h-4 w-4 text-pink-600" />
-                        </Button>
-
-                        {/* Excluir - Red */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-red-100"
-                          title="Excluir"
-                          onClick={() => handleAction("Excluir", study)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-600" />
-                        </Button>
-
-                        {/* Aprovar - Green */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-green-100"
-                          title="Aprovar"
-                          onClick={() => handleAction("Aprovar", study)}
-                        >
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        </Button>
-
-                        {/* Compartilhar - Blue */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-blue-100"
-                          title="Compartilhar"
-                          onClick={() => handleAction("Compartilhar", study)}
-                        >
-                          <Share2 className="h-4 w-4 text-blue-600" />
-                        </Button>
-
-                        {/* More Options */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-gray-100"
-                          title="Mais opções"
-                        >
-                          <MoreVertical className="h-4 w-4 text-gray-500" />
-                        </Button>
-
-                        {/* Patient Info */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-gray-100"
-                          title="Informações do paciente"
-                        >
-                          <User className="h-4 w-4 text-gray-500" />
-                        </Button>
-
-                        {/* Security */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0 hover:bg-gray-100"
-                          title="Segurança"
-                        >
-                          <Shield className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </div>
-                    </TableCell>
-
-                    {/* Date Column */}
-                    <TableCell className="py-2">
-                      <div className="text-xs text-gray-900">
-                        {study.studyDate ? 
-                          new Date(study.studyDate.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')).toLocaleDateString('pt-BR') 
-                          : "-"}
-                      </div>
-                      <div className="text-[11px] text-gray-500 mt-0.5">
-                        {study.studyTime || ""}
-                      </div>
-                    </TableCell>
-
-                    {/* Patient Name Column */}
-                    <TableCell className="py-2">
-                      <div className="text-xs font-medium text-gray-900">
-                        {study.patientName ? study.patientName.replace(/\^/g, ' ') : "-"}
-                      </div>
-                    </TableCell>
-
-                    {/* Exam Description Column */}
-                    <TableCell className="py-2">
-                      <div className="text-xs text-gray-900">
-                        {study.studyDescription || "Sem descrição"}
-                      </div>
-                      <div className="text-[11px] text-gray-500 mt-0.5">
-                        {study.modality || "-"}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          {status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
