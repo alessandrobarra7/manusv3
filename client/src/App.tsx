@@ -41,7 +41,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
-      <Route path="/" component={() => <ProtectedRoute component={Dashboard} />} />
+      <Route path="/" component={() => <ProtectedRoute component={PacsQueryPage} />} />
       <Route path="/dashboard" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/units" component={() => <ProtectedRoute component={Units} />} />
       <Route path="/studies" component={() => <ProtectedRoute component={Studies} />} />

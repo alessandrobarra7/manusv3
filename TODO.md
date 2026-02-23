@@ -196,3 +196,11 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Adicionar auditoria de queries PACS (PACS_QUERY, PACS_DOWNLOAD)
 - [ ] Pendente: Implementar C-FIND real no Orthanc (179.67.254.135:11112 - PACSML)
 - [ ] Pendente: Implementar C-MOVE para download de estudos
+
+### 23/02/2026 - Redesign de Login e Fluxo Principal (Concluído)
+- [x] Redesenhar página de login com layout 50/50 (formulário + imagem médica)
+- [x] Adicionar imagem médica profissional no lado direito
+- [x] Melhorar design do formulário de login (campos, botões, logo)
+- [x] Ajustar rota inicial (/) para redirecionar para /pacs-query após login
+- [x] Remover Dashboard como tela principal
+- [x] Testar fluxo: Login → Busca de Exames PACS

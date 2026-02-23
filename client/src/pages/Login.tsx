@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,10 +8,18 @@ import { Mail, Lock, AlertCircle } from "lucide-react";
 import { getLoginUrl } from "@/const";
 
 export default function Login() {
+  const { isAuthenticated, loading } = useAuth();
+  const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setLocation("/pacs-query");
+    }
+  }, [isAuthenticated, setLocation]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
