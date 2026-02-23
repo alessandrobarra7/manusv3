@@ -22,7 +22,10 @@ import {
   createReport,
   updateReport,
   createAuditLog,
+  getDb,
 } from "./db";
+import { units } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 export const appRouter = router({
   system: systemRouter,
@@ -383,26 +386,118 @@ export const appRouter = router({
         studyDescription: z.string().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // TODO: Implement actual DICOM C-FIND query to Orthanc
-        // For now, return mock data to demonstrate the interface
+        // Get user's unit to retrieve PACS connection parameters
+        const db = await getDb();
+        if (!db) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Database not available',
+          });
+        }
         
-        await createAuditLog({
-          user_id: ctx.user.id,
-          unit_id: ctx.user.unit_id,
-          action: 'PACS_QUERY',
-          target_type: 'PACS',
-          target_id: 'PACSML',
-          ip_address: ctx.req.ip,
-          user_agent: ctx.req.headers['user-agent'],
-          metadata: input,
-        });
+        const [unit] = await db.select().from(units).where(eq(units.id, ctx.user.unit_id!)).limit(1);
         
-        // Mock response - will be replaced with actual Orthanc query
-        return {
-          success: true,
-          studies: [],
-          message: 'Funcionalidade de query PACS em desenvolvimento. Integração com Orthanc será implementada.',
+        if (!unit) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Unidade não encontrada',
+          });
+        }
+        
+        // Check if PACS connection is configured
+        if (!unit.pacs_ip || !unit.pacs_port || !unit.pacs_ae_title) {
+          throw new TRPCError({
+            code: 'PRECONDITION_FAILED',
+            message: 'PACS não configurado para esta unidade. Configure IP, porta e AE Title.',
+          });
+        }
+        
+        // Prepare input for Python script
+        const queryInput = {
+          pacs_ip: unit.pacs_ip,
+          pacs_port: unit.pacs_port,
+          pacs_ae_title: unit.pacs_ae_title,
+          local_ae_title: unit.pacs_local_ae_title || 'PACSMANUS',
+          filters: {
+            patient_name: input.patientName,
+            patient_id: input.patientId,
+            modality: input.modality,
+            study_date: input.studyDate,
+            accession_number: input.accessionNumber,
+          },
         };
+        
+        // Execute Python script
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        try {
+          const scriptPath = new URL('./dicom_query.sh', import.meta.url).pathname;
+          const { stdout, stderr } = await execAsync(
+            `"${scriptPath}" '${JSON.stringify(queryInput)}'`,
+            { timeout: 30000 } // 30 second timeout
+          );
+          
+          if (stderr) {
+            console.error('Python script stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout);
+          
+          // Log audit
+          await createAuditLog({
+            user_id: ctx.user.id,
+            unit_id: ctx.user.unit_id,
+            action: 'PACS_QUERY',
+            target_type: 'PACS',
+            target_id: unit.pacs_ae_title,
+            ip_address: ctx.req.ip,
+            user_agent: ctx.req.headers['user-agent'],
+            metadata: {
+              ...input,
+              pacs_ip: unit.pacs_ip,
+              results_count: result.count || 0,
+            },
+          });
+          
+          if (!result.success) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: `Erro ao consultar PACS: ${result.error}`,
+              cause: result.details,
+            });
+          }
+          
+          return {
+            success: true,
+            studies: result.studies || [],
+            count: result.count || 0,
+          };
+          
+        } catch (error: any) {
+          console.error('Error executing DICOM query:', error);
+          
+          // Log failed audit
+          await createAuditLog({
+            user_id: ctx.user.id,
+            unit_id: ctx.user.unit_id,
+            action: 'PACS_QUERY',
+            target_type: 'PACS',
+            target_id: unit.pacs_ae_title,
+            ip_address: ctx.req.ip,
+            user_agent: ctx.req.headers['user-agent'],
+            metadata: {
+              ...input,
+              error: error.message,
+            },
+          });
+          
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Falha na consulta DICOM: ${error.message}`,
+          });
+        }
       }),
     
     download: protectedProcedure

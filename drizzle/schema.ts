@@ -11,6 +11,11 @@ export const units = mysqlTable("units", {
   orthanc_base_url: varchar("orthanc_base_url", { length: 500 }),
   orthanc_basic_user: varchar("orthanc_basic_user", { length: 100 }),
   orthanc_basic_pass: varchar("orthanc_basic_pass", { length: 255 }),
+  // PACS/DICOM connection parameters
+  pacs_ip: varchar("pacs_ip", { length: 45 }),
+  pacs_port: int("pacs_port"),
+  pacs_ae_title: varchar("pacs_ae_title", { length: 16 }),
+  pacs_local_ae_title: varchar("pacs_local_ae_title", { length: 16 }).default("PACSMANUS"),
   logoUrl: varchar("logoUrl", { length: 500 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

@@ -214,3 +214,15 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Cores neutras (gray-50 bg, gray-700 text)
 - [x] Header compacto com contador de resultados
 - [x] Botões de ação compactos (h-7 w-7)
+
+### 23/02/2026 - Implementação C-FIND DICOM Real (Concluído ✅)
+- [x] Atualizar schema units com campos PACS (pacs_ip, pacs_port, pacs_ae_title)
+- [x] Gerar e aplicar migration para novos campos (0003_black_luckman.sql)
+- [x] Criar script Python dicom_query.py usando pynetdicom
+- [x] Instalar pynetdicom e pydicom no servidor
+- [x] Criar bash wrapper dicom_query.sh para isolar Python 3.11
+- [x] Integrar script Python no backend tRPC (pacs.query)
+- [x] Criar unidade de teste (Orthanc 179.67.254.135:11112 - PACSML)
+- [x] Testar busca real no Orthanc (44 estudos encontrados com sucesso!)
+- [x] Implementar tratamento de erros DICOM
+- [x] Logs de auditoria já implementados (PACS_QUERY action)
