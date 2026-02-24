@@ -500,11 +500,11 @@ export const appRouter = router({
         }
       }),
     
-    getViewerUrl: protectedProcedure
+    startViewer: protectedProcedure
       .input(z.object({
         studyInstanceUid: z.string(),
       }))
-      .query(async ({ input, ctx }) => {
+      .mutation(async ({ input, ctx }) => {
         const db = await getDb();
         if (!db) {
           throw new TRPCError({
@@ -524,36 +524,78 @@ export const appRouter = router({
         }
         
         // Check if PACS connection is configured
-        if (!unit.pacs_ip || !unit.pacs_port) {
+        if (!unit.pacs_ip || !unit.pacs_port || !unit.pacs_ae_title) {
           throw new TRPCError({
             code: 'PRECONDITION_FAILED',
             message: 'PACS não configurado para esta unidade.',
           });
         }
         
-        // Generate OHIF Viewer URL with DICOMweb datasource
-        // Assuming Orthanc has DICOMweb plugin enabled on port 8042
-        const dicomwebUrl = `http://${unit.pacs_ip}:8042/dicom-web`;
-        const ohifUrl = `https://viewer.ohif.org/viewer?url=dicomweb:${encodeURIComponent(dicomwebUrl)}&StudyInstanceUIDs=${encodeURIComponent(input.studyInstanceUid)}`;
-        
-        // Log audit
-        await createAuditLog({
-          user_id: ctx.user.id,
-          unit_id: ctx.user.unit_id,
-          action: 'OPEN_VIEWER',
-          target_type: 'STUDY',
-          target_id: input.studyInstanceUid,
-          ip_address: ctx.req.ip,
-          user_agent: ctx.req.headers['user-agent'],
-          metadata: {
-            pacs_ip: unit.pacs_ip,
-          },
-        });
-        
-        return {
-          viewerUrl: ohifUrl,
-          studyInstanceUid: input.studyInstanceUid,
+        // Prepare input for C-MOVE Python script
+        const moveInput = {
+          pacs_ip: unit.pacs_ip,
+          pacs_port: unit.pacs_port,
+          pacs_ae_title: unit.pacs_ae_title,
+          local_ae_title: unit.pacs_local_ae_title || 'PACSMANUS',
+          study_instance_uid: input.studyInstanceUid,
+          cache_dir: '/tmp/dicom-cache',
         };
+        
+        // Execute Python C-MOVE script
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        try {
+          const scriptPath = new URL('./dicom_move.sh', import.meta.url).pathname;
+          const { stdout, stderr } = await execAsync(
+            `"${scriptPath}" '${JSON.stringify(moveInput)}'`,
+            { timeout: 120000 } // 2 minute timeout for C-MOVE
+          );
+          
+          if (stderr) {
+            console.error('C-MOVE script stderr:', stderr);
+          }
+          
+          const result = JSON.parse(stdout);
+          
+          // Log audit
+          await createAuditLog({
+            user_id: ctx.user.id,
+            unit_id: ctx.user.unit_id,
+            action: 'OPEN_VIEWER',
+            target_type: 'STUDY',
+            target_id: input.studyInstanceUid,
+            ip_address: ctx.req.ip,
+            user_agent: ctx.req.headers['user-agent'],
+            metadata: {
+              pacs_ip: unit.pacs_ip,
+              file_count: result.file_count || 0,
+            },
+          });
+          
+          if (!result.success) {
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: `Erro ao baixar estudo: ${result.error}`,
+            });
+          }
+          
+          return {
+            success: true,
+            studyInstanceUid: input.studyInstanceUid,
+            fileCount: result.file_count || 0,
+            cacheDir: result.cache_dir,
+          };
+          
+        } catch (error: any) {
+          console.error('Error executing C-MOVE:', error);
+          
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Falha ao baixar estudo: ${error.message}`,
+          });
+        }
       }),
     
     download: protectedProcedure
@@ -575,7 +617,7 @@ export const appRouter = router({
         
         return {
           success: true,
-          message: 'Download iniciado',
+          message: 'Download não implementado ainda',
         };
       }),
   }),

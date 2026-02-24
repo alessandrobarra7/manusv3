@@ -270,3 +270,20 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
   5. Médico (nome + CRM)
   6. Status de Laudo (Pendente/Em Andamento/Concluído com cores)
 - [x] Remover botões de ações não utilizados (Arquivar, Excluir, Aprovar, Compartilhar, etc.)
+
+### 23/02/2026 - Visualizador DICOM Cornerstone.js com Cache Temporário (Em Andamento)
+- [x] Criar script Python para C-MOVE (dicom_move.py)
+- [x] Criar bash wrapper para isolar Python 3.11 (dicom_move.sh)
+- [x] Instalar bibliotecas Cornerstone.js (cornerstone-core, cornerstone-tools, cornerstone-wado-image-loader, dicom-parser)
+- [x] Criar endpoint backend para servir arquivos DICOM do cache (GET /api/dicom-files/:studyUid/:filename)
+- [x] Criar endpoint para listar arquivos DICOM (GET /api/dicom-files/:studyUid)
+- [x] Implementar endpoint tRPC pacs.startViewer (C-MOVE + retornar cache info)
+- [x] Criar componente DicomViewer.tsx com Cornerstone.js
+- [x] Adicionar ferramentas básicas (zoom, pan, rotate, reset)
+- [ ] **PENDENTE**: Adicionar type definitions para Cornerstone.js
+- [ ] **PENDENTE**: Integrar DicomViewer na página de busca PACS (botão Ver)
+- [ ] **PENDENTE**: Testar C-MOVE real com Orthanc
+- [ ] **PENDENTE**: Testar visualização de imagens DICOM
+- [ ] **PENDENTE**: Implementar limpeza automática de cache
+- [ ] **PENDENTE**: Adicionar indicador de progresso durante C-MOVE
+- [ ] **PENDENTE**: Implementar navegação entre séries/instâncias

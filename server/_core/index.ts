@@ -35,6 +35,50 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // Serve DICOM files from cache
+  app.get('/api/dicom-files/:studyUid/:filename', (req, res) => {
+    const { studyUid, filename } = req.params;
+    const filePath = `/tmp/dicom-cache/${studyUid}/${filename}`;
+    
+    // Security: validate filename to prevent directory traversal
+    if (filename.includes('..') || filename.includes('/')) {
+      return res.status(400).send('Invalid filename');
+    }
+    
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('Error sending DICOM file:', err);
+        res.status(404).send('File not found');
+      }
+    });
+  });
+  
+  // List DICOM files for a study
+  app.get('/api/dicom-files/:studyUid', async (req, res) => {
+    const { studyUid } = req.params;
+    const studyDir = `/tmp/dicom-cache/${studyUid}`;
+    
+    try {
+      const fs = await import('fs/promises');
+      const files = await fs.readdir(studyDir);
+      const dicomFiles = files.filter(f => f.endsWith('.dcm'));
+      
+      res.json({
+        success: true,
+        studyUid,
+        files: dicomFiles,
+        count: dicomFiles.length,
+      });
+    } catch (error) {
+      console.error('Error listing DICOM files:', error);
+      res.status(404).json({
+        success: false,
+        error: 'Study not found in cache',
+      });
+    }
+  });
+  
   // tRPC API
   app.use(
     "/api/trpc",

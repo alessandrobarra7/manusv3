@@ -1,193 +1,152 @@
-# PACS Portal - Progresso de Desenvolvimento
+# 📊 PACS Portal - Status de Desenvolvimento
 
-**Última Atualização:** 23/02/2026 18:20 GMT-3
-
----
-
-## ✅ **Funcionalidades Implementadas e Funcionando**
-
-### 1. **Autenticação e Fluxo de Login**
-- ✅ Tela de login redesenhada (layout 50/50 com imagem médica)
-- ✅ Fluxo: Login → Busca PACS (rota raiz redireciona para `/pacs-query`)
-- ✅ OAuth Manus integrado
-- ✅ Sistema de permissões por unidade
-
-### 2. **Busca PACS com C-FIND DICOM Real**
-- ✅ Integração DICOM funcional usando Python + pynetdicom
-- ✅ Consulta real ao Orthanc (179.67.254.135:11112 - PACSML)
-- ✅ **44 estudos encontrados e exibidos com sucesso**
-- ✅ Filtros: Nome paciente, ID, modalidade, data, accession number
-- ✅ Interface compacta profissional (estilo software médico)
-- ✅ Auditoria completa de queries PACS
-
-### 3. **Backend tRPC**
-- ✅ Endpoint `pacs.query` - Busca estudos via C-FIND DICOM
-- ✅ Endpoint `pacs.getViewerUrl` - Gera URL para visualizador (OHIF tentado)
-- ✅ Endpoint `pacs.download` - Estrutura para C-MOVE (não implementado)
-- ✅ Sistema de auditoria (PACS_QUERY, OPEN_VIEWER, PACS_DOWNLOAD)
-
-### 4. **Banco de Dados**
-- ✅ Tabela `units` com campos PACS (pacs_ip, pacs_port, pacs_ae_title, pacs_local_ae_title)
-- ✅ Unidade de teste cadastrada (Orthanc 179.67.254.135:11112 - PACSML)
-- ✅ Sistema multi-tenant (usuários vinculados a unidades)
-
-### 5. **Scripts Python DICOM**
-- ✅ `server/dicom_query.py` - Script Python para C-FIND usando pynetdicom
-- ✅ `server/dicom_query.sh` - Wrapper bash para isolar Python 3.11
-- ✅ Integração Node.js → Python → PACS funcionando perfeitamente
+**Última Atualização:** 23/02/2026 - 20:25 GMT-3
 
 ---
 
-## 🚧 **Em Desenvolvimento (Próximos Passos)**
+## ✅ **FUNCIONALIDADES IMPLEMENTADAS E TESTADAS:**
 
-### 1. **Redesign da Interface de Busca PACS** (Prioridade Alta)
-**Baseado na imagem de referência fornecida pelo usuário**
+### 1. **Busca PACS (C-FIND DICOM)** ✅
+- Script Python `dicom_query.py` com pynetdicom
+- Bash wrapper `dicom_query.sh` para isolar Python 3.11
+- Endpoint tRPC `pacs.query` funcionando
+- **TESTADO**: 44 estudos retornados do Orthanc (179.67.254.135:11112 - PACSML)
 
-#### Layout Novo:
-- [ ] **Colunas**: Ações | Paciente | Exame
-- [ ] **Ações coloridas por linha** (ícones):
-  - 🟣 Visualizar (ícone olho roxo)
-  - 📁 Arquivar (ícone pasta cinza)
-  - 🟣 Laudar (ícone edição rosa)
-  - 🔴 Excluir (ícone lixeira vermelho)
-  - 🟢 Aprovar (ícone check verde)
-  - 📤 Compartilhar
-  - ⋯ Mais opções
-  - 👤 Informações do paciente
-  - 🔒 Segurança/Permissões
+### 2. **Interface de Busca Reorganizada** ✅
+- Barra de título com boas-vindas e nome da unidade
+- Filtros simplificados (Nome, Data, Exames de Hoje, Período, Plantão)
+- Tabela compacta com 6 colunas essenciais
+- Formatação correta de nomes (sem caracteres `^`)
+- **TESTADO**: Interface funcionando perfeitamente
 
-#### Filtros Avançados no Topo:
-- [ ] **Período**: Dropdown (30 dias, 7 dias, hoje, etc.)
-- [ ] **Status**: Tabs (Todos, Não Assinados, Prioridades, Plantão, Reavaliação, etc.)
-- [ ] **Modalidades**: Checkboxes inline
-  - TODAS, CR, CT, DX, EMD, MG, MR, US, VA, ECG, RESP, MAPA, HOLTER, OUTRAS
+### 3. **Banco de Dados** ✅
+- Schema `units` com campos PACS (pacs_ip, pacs_port, pacs_ae_title)
+- Migration 0003 aplicada com sucesso
+- Unidade de teste cadastrada
+- Auditoria completa (PACS_QUERY, OPEN_VIEWER, PACS_DOWNLOAD)
 
-#### Informações por Linha:
-- [ ] **Coluna Paciente**: Nome completo + ID
-- [ ] **Coluna Exame**: Data + Modalidade + Descrição
-
-### 2. **Visualizador DICOM Integrado** (Prioridade Alta)
-**Decisão: Usar cornerstone.js integrado no portal, NÃO OHIF externo**
-
-#### Motivo da Mudança:
-- ❌ OHIF requer DICOMweb habilitado no Orthanc (porta 8042)
-- ❌ Orthancs do usuário são configurados apenas com IP:porta:AETitle
-- ✅ Visualizador integrado no portal é mais simples e direto
-
-#### Implementação:
-- [ ] Instalar cornerstone-core, cornerstone-tools, cornerstone-wado-image-loader
-- [ ] Criar componente `DicomViewer.tsx` com canvas cornerstone
-- [ ] Buscar imagens DICOM via WADO do Orthanc usando IP:porta
-- [ ] Ferramentas básicas:
-  - Zoom, Pan
-  - Windowing (brilho/contraste)
-  - Navegação entre séries/instâncias
-  - Medição (distância, ângulo)
-- [ ] Integrar com botão "Visualizar" da tabela
-
-### 3. **Sistema de Laudos** (Próxima Fase)
-- [ ] Página de criação de laudo
-- [ ] Editor de texto rico
-- [ ] Templates de laudos por modalidade
-- [ ] Assinatura digital
-- [ ] Impressão de laudos
-- [ ] Integração com visualizador (abrir imagem + laudo lado a lado)
-
-### 4. **Gerenciamento de Unidades** (Próxima Fase)
-- [ ] Página de cadastro de unidades
-- [ ] Formulário com campos: Nome, IP PACS, Porta, AE Title
-- [ ] Teste de conectividade DICOM
-- [ ] Listagem de unidades cadastradas
-- [ ] Edição/exclusão de unidades
+### 4. **Login e Autenticação** ✅
+- Tela de login redesenhada (layout 50/50)
+- Fluxo: Login → Busca PACS (direto)
+- Manus OAuth funcionando
 
 ---
 
-## 📊 **Arquitetura Atual**
+## 🚧 **EM DESENVOLVIMENTO (80% COMPLETO):**
+
+### **Visualizador DICOM Cornerstone.js**
+
+#### **Implementado:**
+- ✅ Script Python `dicom_move.py` para C-MOVE
+- ✅ Bash wrapper `dicom_move.sh`
+- ✅ Bibliotecas Cornerstone.js instaladas
+- ✅ Endpoint backend `/api/dicom-files/:studyUid/:filename` (servir arquivos)
+- ✅ Endpoint backend `/api/dicom-files/:studyUid` (listar arquivos)
+- ✅ Endpoint tRPC `pacs.startViewer` (C-MOVE)
+- ✅ Componente `DicomViewer.tsx` criado
+- ✅ Ferramentas básicas (zoom, pan, rotate, reset)
+
+#### **Pendente:**
+- ⏳ Adicionar type definitions para Cornerstone.js (erros TypeScript)
+- ⏳ Integrar DicomViewer na página de busca (botão "Ver")
+- ⏳ Testar C-MOVE real com Orthanc
+- ⏳ Testar visualização de imagens DICOM
+- ⏳ Implementar limpeza automática de cache
+- ⏳ Adicionar indicador de progresso durante C-MOVE
+
+---
+
+## 📋 **PRÓXIMAS FUNCIONALIDADES (ROADMAP):**
+
+### **Curto Prazo:**
+1. **Finalizar Visualizador DICOM** (1-2 horas)
+2. **Sistema de Laudos** (4-6 horas)
+   - Página de criação/edição de laudos
+   - Editor de texto rico
+   - Templates de laudos
+   - Assinatura digital
+
+### **Médio Prazo:**
+3. **Gerenciamento de Unidades** (2-3 horas)
+   - CRUD de unidades
+   - Configuração PACS (IP, porta, AE Title)
+   - Teste de conectividade DICOM
+
+4. **Gerenciamento de Usuários** (2-3 horas)
+   - CRUD de usuários
+   - Permissões por unidade
+   - Roles (médico, radiologista, admin)
+
+### **Longo Prazo:**
+5. **Templates de Laudos** (já tem estrutura no banco)
+6. **Dashboard com Estatísticas**
+7. **Notificações e Alertas**
+8. **Integração com HL7/FHIR**
+
+---
+
+## 🐛 **PROBLEMAS CONHECIDOS:**
+
+### **Erros TypeScript Atuais:**
+1. `cornerstone-tools` - falta type definition
+2. `cornerstone-wado-image-loader` - falta type definition  
+3. `ViewerPage.tsx` - usa `getViewerUrl` antigo (deve ser `startViewer`)
+
+### **Solução:**
+- Criar arquivo `.d.ts` para type definitions
+- Atualizar ViewerPage.tsx para usar novo endpoint
+
+---
+
+## 📦 **ARQUITETURA ATUAL:**
 
 ```
-Frontend React (PACS Portal)
-    ↓ tRPC
-Backend Node.js + Express
-    ↓ spawn Python script
-Python 3.11 + pynetdicom
-    ↓ C-FIND DICOM (porta 11112)
+Frontend (React + Tailwind)
+    ↓
+Backend (Node.js + tRPC + Express)
+    ↓
+Python Scripts (DICOM C-FIND, C-MOVE)
+    ↓
 Orthanc Remoto (179.67.254.135:11112 - PACSML)
     ↓
-Estudos DICOM retornados
+PACS (Modalidades médicas)
 ```
 
-### **Arquitetura Futura (com visualizador):**
-
-```
-Frontend React
-    ↓ tRPC
-Backend Node.js
-    ↓ WADO (HTTP)
-Orthanc Local (IP:porta configurável)
-    ↓ C-FIND/C-MOVE
-PACS Remoto (IP:porta:AETitle)
-```
+### **Cache Temporário:**
+- `/tmp/dicom-cache/{StudyInstanceUID}/` - Arquivos DICOM baixados via C-MOVE
+- Limpar após visualização (economizar espaço)
 
 ---
 
-## 🔧 **Arquivos Principais**
+## 🔧 **TECNOLOGIAS:**
 
-### Backend:
-- `server/routers.ts` - Endpoints tRPC (pacs.query, pacs.getViewerUrl, pacs.download)
-- `server/dicom_query.py` - Script Python C-FIND usando pynetdicom
-- `server/dicom_query.sh` - Wrapper bash para Python 3.11
-- `server/db.ts` - Funções de acesso ao banco de dados
-- `drizzle/schema.ts` - Schema do banco (units, users, audit_log, etc.)
-
-### Frontend:
-- `client/src/pages/PacsQueryPage.tsx` - Interface de busca PACS
-- `client/src/pages/ViewerPage.tsx` - Página do visualizador (OHIF tentado, será substituído)
-- `client/src/pages/Login.tsx` - Tela de login redesenhada
-- `client/src/App.tsx` - Rotas da aplicação
-
-### Database:
-- `drizzle/0003_black_luckman.sql` - Migration com campos PACS na tabela units
+- **Frontend**: React 19, Tailwind 4, Wouter, tRPC Client
+- **Backend**: Node.js, Express 4, tRPC 11, Drizzle ORM
+- **Database**: TiDB (MySQL compatible)
+- **DICOM**: pynetdicom (Python 3.11), Cornerstone.js
+- **Auth**: Manus OAuth
 
 ---
 
-## 🎯 **Decisões Técnicas Importantes**
+## 📝 **NOTAS IMPORTANTES:**
 
-### 1. **Visualizador: Cornerstone.js integrado (NÃO OHIF)**
-**Motivo:** Orthancs do usuário não terão DICOMweb habilitado, apenas DICOM C-FIND/C-MOVE via IP:porta:AETitle.
-
-### 2. **Python Bridge para DICOM**
-**Motivo:** Bibliotecas DICOM em Node.js são instáveis. Python + pynetdicom é muito mais confiável.
-
-### 3. **Interface Compacta Profissional**
-**Motivo:** Usuário pediu design "estilo software médico", não "website genérico". Layout denso com mais informações visíveis.
-
-### 4. **Multi-tenant por Unidade**
-**Motivo:** Cada usuário pertence a uma unidade, cada unidade tem seu próprio Orthanc (IP:porta:AETitle).
+1. **Orthancs locais** - Cada unidade terá seu Orthanc (4TB storage)
+2. **Portal** - VMs 200/201 (disco pequeno, apenas cache temporário)
+3. **Multi-tenant** - Cada usuário pertence a uma unidade
+4. **Laudos** - Armazenados no PostgreSQL (não no Orthanc)
+5. **Imagens** - Ficam nos Orthancs locais (não no portal)
 
 ---
 
-## 📝 **Notas para Próxima Sessão**
+## 🚀 **COMO CONTINUAR:**
 
-1. **Redesenhar PacsQueryPage** com ações coloridas baseado na imagem de referência
-2. **Implementar visualizador cornerstone.js** integrado no portal
-3. **Testar visualização** de imagens DICOM reais do Orthanc
-4. **Implementar C-MOVE** para download de estudos do PACS remoto para Orthanc local (se necessário)
-
----
-
-## 🐛 **Problemas Conhecidos**
-
-1. **Python SRE module mismatch** - Warnings no console do servidor (não afeta funcionalidade)
-2. **OHIF Viewer** - Não funciona sem DICOMweb no Orthanc (será substituído por cornerstone.js)
+1. Corrigir erros TypeScript (type definitions)
+2. Integrar DicomViewer na página de busca
+3. Testar fluxo completo: Busca → Ver → C-MOVE → Visualizar
+4. Implementar limpeza de cache
+5. Criar checkpoint funcional
+6. Iniciar desenvolvimento de Laudos
 
 ---
 
-## 📚 **Referências**
-
-- **Orthanc de Teste**: 179.67.254.135:11112 (PACSML)
-- **Imagem de Referência**: Layout com ações coloridas fornecido pelo usuário
-- **Código 2 (Lauds)**: Referência de design de login
-
----
-
-**Status Geral:** ✅ **C-FIND DICOM funcionando perfeitamente! Próximo: Redesign + Visualizador integrado**
+**Repositório GitHub:** https://github.com/alessandrobarra7/manusv3.git
