@@ -319,3 +319,12 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Backend interpreta valores especiais: TODAY, LAST_7_DAYS, LAST_30_DAYS
 - [x] Testar todas as opções: Hoje (1 estudo), 7 Dias (9 estudos), 30 Dias (16 estudos), Todos (16 estudos)
 - **Solução**: Interface simplificada com botões de período ao invés de campo manual
+
+### 24/02/2026 - Melhorar Interface de Exibição de Exames (CONCLUÍDO ✅)
+- [x] Remover número de acesso (Patient ID) da exibição do nome
+- [x] Adicionar botão de edição ao lado da descrição do exame
+- [x] Reorganizar botões de ação na ordem: Ver → Laudar → Imprimir → Médico
+- [x] Consolidar botões em coluna "Ácões" única
+- [x] Adicionar cores distintas para cada botão (roxo, rosa, azul, verde)
+- [x] Testar interface atualizada: nome limpo, botões organizados
+- **Solução**: Regex remove Patient ID do nome, botões consolidados em coluna única

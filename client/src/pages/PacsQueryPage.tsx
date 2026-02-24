@@ -9,7 +9,10 @@ import {
   Eye, 
   FileText,
   Calendar,
-  Clock
+  Clock,
+  Edit2,
+  Printer,
+  UserCircle
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -265,11 +268,8 @@ export function PacsQueryPage() {
                   <TableHead className="py-3 text-xs font-semibold text-gray-700">
                     Nome do Paciente
                   </TableHead>
-                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[120px] text-center">
-                    Visualizador
-                  </TableHead>
-                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[120px] text-center">
-                    Laudar
+                  <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[400px] text-center">
+                    Ações
                   </TableHead>
                   <TableHead className="py-3 text-xs font-semibold text-gray-700 w-[180px]">
                     Médico
@@ -299,37 +299,70 @@ export function PacsQueryPage() {
                       {/* Patient Name Column */}
                       <TableCell className="py-3">
                         <div className="text-sm font-medium text-gray-900">
-                          {study.patientName ? study.patientName.replace(/\^/g, ' ') : "-"}
+                          {study.patientName ? study.patientName.replace(/\^/g, ' ').replace(/\s+\d{10,}$/g, '') : "-"}
                         </div>
-                        <div className="text-xs text-gray-500 mt-0.5">
-                          {study.studyDescription || "Sem descrição"} • {study.modality || "-"}
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-gray-500">
+                            {study.studyDescription || "Sem descrição"} • {study.modality || "-"}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 w-5 p-0 hover:bg-gray-100"
+                            onClick={() => toast.info('Edição de descrição em desenvolvimento')}
+                          >
+                            <Edit2 className="h-3 w-3 text-gray-400" />
+                          </Button>
                         </div>
                       </TableCell>
 
-                      {/* Visualizer Button */}
-                      <TableCell className="py-3 text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 px-3 hover:bg-purple-50 hover:border-purple-300"
-                          onClick={() => handleVisualize(study)}
-                        >
-                          <Eye className="h-4 w-4 mr-1.5 text-purple-600" />
-                          <span className="text-xs">Ver</span>
-                        </Button>
-                      </TableCell>
-
-                      {/* Report Button */}
-                      <TableCell className="py-3 text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 px-3 hover:bg-pink-50 hover:border-pink-300"
-                          onClick={() => handleReport(study)}
-                        >
-                          <FileText className="h-4 w-4 mr-1.5 text-pink-600" />
-                          <span className="text-xs">Laudar</span>
-                        </Button>
+                      {/* Actions Column */}
+                      <TableCell className="py-3">
+                        <div className="flex items-center justify-center gap-2">
+                          {/* Ver Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 hover:bg-purple-50 hover:border-purple-300"
+                            onClick={() => handleVisualize(study)}
+                          >
+                            <Eye className="h-4 w-4 mr-1.5 text-purple-600" />
+                            <span className="text-xs">Ver</span>
+                          </Button>
+                          
+                          {/* Laudar Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 hover:bg-pink-50 hover:border-pink-300"
+                            onClick={() => handleReport(study)}
+                          >
+                            <FileText className="h-4 w-4 mr-1.5 text-pink-600" />
+                            <span className="text-xs">Laudar</span>
+                          </Button>
+                          
+                          {/* Impressão de Laudo Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 hover:bg-blue-50 hover:border-blue-300"
+                            onClick={() => toast.info('Impressão de laudo em desenvolvimento')}
+                          >
+                            <Printer className="h-4 w-4 mr-1.5 text-blue-600" />
+                            <span className="text-xs">Imprimir</span>
+                          </Button>
+                          
+                          {/* Escolha de Médico Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 hover:bg-green-50 hover:border-green-300"
+                            onClick={() => toast.info('Escolha de médico em desenvolvimento')}
+                          >
+                            <UserCircle className="h-4 w-4 mr-1.5 text-green-600" />
+                            <span className="text-xs">Médico</span>
+                          </Button>
+                        </div>
                       </TableCell>
 
                       {/* Doctor Column */}
