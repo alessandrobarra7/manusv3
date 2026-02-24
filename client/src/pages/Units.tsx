@@ -27,6 +27,11 @@ export default function Units() {
     orthanc_base_url: "",
     orthanc_basic_user: "",
     orthanc_basic_pass: "",
+    pacs_ip: "",
+    pacs_port: "",
+    pacs_ae_title: "",
+    pacs_local_ae_title: "",
+    logoUrl: "",
   });
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -35,7 +40,7 @@ export default function Units() {
       await createMutation.mutateAsync(formData);
       toast.success("Unidade criada com sucesso!");
       setIsCreateOpen(false);
-      setFormData({ name: "", slug: "", orthanc_base_url: "", orthanc_basic_user: "", orthanc_basic_pass: "" });
+      setFormData({ name: "", slug: "", orthanc_base_url: "", orthanc_basic_user: "", orthanc_basic_pass: "", pacs_ip: "", pacs_port: "", pacs_ae_title: "", pacs_local_ae_title: "", logoUrl: "" });
       refetch();
     } catch (error: any) {
       toast.error(error.message || "Erro ao criar unidade");
@@ -53,7 +58,7 @@ export default function Units() {
       });
       toast.success("Unidade atualizada com sucesso!");
       setEditingUnit(null);
-      setFormData({ name: "", slug: "", orthanc_base_url: "", orthanc_basic_user: "", orthanc_basic_pass: "" });
+      setFormData({ name: "", slug: "", orthanc_base_url: "", orthanc_basic_user: "", orthanc_basic_pass: "", pacs_ip: "", pacs_port: "", pacs_ae_title: "", pacs_local_ae_title: "", logoUrl: "" });
       refetch();
     } catch (error: any) {
       toast.error(error.message || "Erro ao atualizar unidade");
@@ -80,6 +85,11 @@ export default function Units() {
       orthanc_base_url: unit.orthanc_base_url || "",
       orthanc_basic_user: unit.orthanc_basic_user || "",
       orthanc_basic_pass: "",
+      pacs_ip: unit.pacs_ip || "",
+      pacs_port: unit.pacs_port?.toString() || "",
+      pacs_ae_title: unit.pacs_ae_title || "",
+      pacs_local_ae_title: unit.pacs_local_ae_title || "",
+      logoUrl: unit.logoUrl || "",
     });
   };
 
@@ -173,6 +183,60 @@ export default function Units() {
                       onChange={(e) => setFormData({ ...formData, orthanc_basic_pass: e.target.value })}
                     />
                   </div>
+                  
+                  <div className="border-t pt-4 mt-2">
+                    <h4 className="font-semibold mb-3">Configuração PACS (DICOM)</h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="pacs_ip">IP do PACS</Label>
+                        <Input
+                          id="pacs_ip"
+                          value={formData.pacs_ip}
+                          onChange={(e) => setFormData({ ...formData, pacs_ip: e.target.value })}
+                          placeholder="179.67.254.135"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="pacs_port">Porta PACS</Label>
+                        <Input
+                          id="pacs_port"
+                          type="number"
+                          value={formData.pacs_port}
+                          onChange={(e) => setFormData({ ...formData, pacs_port: e.target.value })}
+                          placeholder="11112"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="pacs_ae_title">AE Title do PACS</Label>
+                        <Input
+                          id="pacs_ae_title"
+                          value={formData.pacs_ae_title}
+                          onChange={(e) => setFormData({ ...formData, pacs_ae_title: e.target.value })}
+                          placeholder="PACSML"
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="pacs_local_ae_title">AE Title Local</Label>
+                        <Input
+                          id="pacs_local_ae_title"
+                          value={formData.pacs_local_ae_title}
+                          onChange={(e) => setFormData({ ...formData, pacs_local_ae_title: e.target.value })}
+                          placeholder="PACSMANUS"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-2">
+                    <Label htmlFor="logoUrl">URL do Logo</Label>
+                    <Input
+                      id="logoUrl"
+                      type="url"
+                      value={formData.logoUrl}
+                      onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                      placeholder="https://exemplo.com/logo.png"
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button type="submit" disabled={createMutation.isPending}>
@@ -198,7 +262,8 @@ export default function Units() {
                   <TableRow>
                     <TableHead>Nome</TableHead>
                     <TableHead>Slug</TableHead>
-                    <TableHead>Orthanc URL</TableHead>
+                    <TableHead>Orthanc</TableHead>
+                    <TableHead>PACS (DICOM)</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
@@ -206,10 +271,33 @@ export default function Units() {
                 <TableBody>
                   {units.map((unit) => (
                     <TableRow key={unit.id}>
-                      <TableCell className="font-medium">{unit.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {unit.logoUrl && (
+                          <img src={unit.logoUrl} alt={unit.name} className="inline-block w-6 h-6 mr-2 rounded" />
+                        )}
+                        {unit.name}
+                      </TableCell>
                       <TableCell className="font-mono text-sm">{unit.slug}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {unit.orthanc_base_url || "Não configurado"}
+                      <TableCell className="text-sm">
+                        {unit.orthanc_base_url ? (
+                          <Badge variant="outline" className="bg-green-50 text-green-700">Configurado</Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-gray-50 text-gray-700">Não configurado</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {unit.pacs_ip ? (
+                          <div>
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                              {unit.pacs_ip}:{unit.pacs_port}
+                            </Badge>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              AE: {unit.pacs_ae_title}
+                            </div>
+                          </div>
+                        ) : (
+                          <Badge variant="outline" className="bg-gray-50 text-gray-700">Não configurado</Badge>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant={unit.isActive ? "default" : "secondary"}>
@@ -298,6 +386,60 @@ export default function Units() {
                     type="password"
                     value={formData.orthanc_basic_pass}
                     onChange={(e) => setFormData({ ...formData, orthanc_basic_pass: e.target.value })}
+                  />
+                </div>
+                
+                <div className="border-t pt-4 mt-2">
+                  <h4 className="font-semibold mb-3">Configuração PACS (DICOM)</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-pacs_ip">IP do PACS</Label>
+                      <Input
+                        id="edit-pacs_ip"
+                        value={formData.pacs_ip}
+                        onChange={(e) => setFormData({ ...formData, pacs_ip: e.target.value })}
+                        placeholder="179.67.254.135"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-pacs_port">Porta PACS</Label>
+                      <Input
+                        id="edit-pacs_port"
+                        type="number"
+                        value={formData.pacs_port}
+                        onChange={(e) => setFormData({ ...formData, pacs_port: e.target.value })}
+                        placeholder="11112"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-pacs_ae_title">AE Title do PACS</Label>
+                      <Input
+                        id="edit-pacs_ae_title"
+                        value={formData.pacs_ae_title}
+                        onChange={(e) => setFormData({ ...formData, pacs_ae_title: e.target.value })}
+                        placeholder="PACSML"
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="edit-pacs_local_ae_title">AE Title Local</Label>
+                      <Input
+                        id="edit-pacs_local_ae_title"
+                        value={formData.pacs_local_ae_title}
+                        onChange={(e) => setFormData({ ...formData, pacs_local_ae_title: e.target.value })}
+                        placeholder="PACSMANUS"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="edit-logoUrl">URL do Logo</Label>
+                  <Input
+                    id="edit-logoUrl"
+                    type="url"
+                    value={formData.logoUrl}
+                    onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+                    placeholder="https://exemplo.com/logo.png"
                   />
                 </div>
               </div>

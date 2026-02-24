@@ -328,3 +328,91 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Adicionar cores distintas para cada botão (roxo, rosa, azul, verde)
 - [x] Testar interface atualizada: nome limpo, botões organizados
 - **Solução**: Regex remove Patient ID do nome, botões consolidados em coluna única
+
+## FASE 2: Criação de Módulos Essenciais do Sistema
+
+### Módulo 1: Administração de Unidades (CONCLUÍDO ✅)
+- [x] Criar página de listagem de unidades (/units) - já existia
+- [x] Criar formulário de cadastro de nova unidade - melhorado
+- [x] Criar formulário de edição de unidade existente - melhorado
+- [x] Implementar configuração de PACS por unidade (IP, porta, AE Title, AE Title Local)
+- [x] Implementar configuração de Orthanc por unidade (URL, credenciais)
+- [x] Adicionar campo URL do logo da unidade
+- [x] Implementar ativação/desativação de unidades - já existia
+- [x] Melhorar tabela com badges coloridos para status Orthanc/PACS
+- [x] Adicionar exibição de logo na listagem
+- [x] Testar CRUD completo de unidades (testado e funcionando)
+
+### Módulo 2: Templates de Laudos
+- [ ] Criar página de listagem de templates (/admin/templates)
+- [ ] Criar formulário de criação de template
+- [ ] Implementar editor de template com campos dinâmicos
+- [ ] Adicionar seleção de modalidade para template
+- [ ] Implementar templates globais vs. templates por unidade
+- [ ] Criar sistema de variáveis no template ({{patientName}}, {{studyDate}}, etc.)
+- [ ] Adicionar preview do template
+- [ ] Implementar duplicação de templates
+- [ ] Testar criação e edição de templates
+
+### Módulo 3: Sistema de Laudos
+- [ ] Criar página de criação de laudo (/reports/create/:studyId)
+- [ ] Integrar seleção de template ao criar laudo
+- [ ] Implementar editor de texto rico para corpo do laudo
+- [ ] Adicionar campos: Achados, Conclusão, Observações
+- [ ] Implementar salvamento automático (draft)
+- [ ] Adicionar botão de finalizar laudo
+- [ ] Implementar assinatura digital do médico
+- [ ] Criar página de visualização de laudo (/reports/:id)
+- [ ] Adicionar histórico de revisões do laudo
+- [ ] Implementar status: rascunho, concluído, revisado
+- [ ] Testar fluxo completo de criação de laudo
+
+### Módulo 4: Visualizador DICOM
+- [ ] Corrigir erros de TypeScript no DicomViewer.tsx
+- [ ] Implementar carregamento de imagens DICOM via C-MOVE
+- [ ] Integrar Cornerstone.js com dados do PACS
+- [ ] Adicionar ferramentas básicas: zoom, pan, scroll
+- [ ] Implementar window/level (brilho/contraste)
+- [ ] Adicionar navegação entre séries
+- [ ] Implementar medições básicas (distância, ângulo)
+- [ ] Adicionar anotações nas imagens
+- [ ] Implementar captura de screenshot para incluir no laudo
+- [ ] Testar visualização com diferentes modalidades (CR, CT, MR, etc.)
+
+### Módulo 5: Impressão de Laudos
+- [ ] Criar template PDF profissional para laudos
+- [ ] Incluir cabeçalho com logo da unidade
+- [ ] Adicionar dados do paciente e exame
+- [ ] Incluir imagens selecionadas do visualizador
+- [ ] Adicionar rodapé com assinatura digital
+- [ ] Implementar geração de PDF no backend
+- [ ] Adicionar botão de download/impressão
+- [ ] Testar geração de PDF com diferentes templates
+
+### Módulo 6: Seleção e Atribuição de Médico
+- [ ] Criar dropdown de seleção de médico responsável
+- [ ] Implementar filtro de médicos por unidade
+- [ ] Adicionar notificação ao médico quando exame é atribuído
+- [ ] Implementar reatribuição de médico
+- [ ] Adicionar histórico de atribuições
+- [ ] Criar dashboard de produtividade por médico
+- [ ] Testar fluxo de atribuição e notificações
+
+### Módulo 7: Melhorias de Interface
+- [ ] Criar menu de navegação principal
+- [ ] Adicionar breadcrumbs para navegação
+- [ ] Implementar notificações toast para ações do usuário
+- [ ] Adicionar loading states em todas as operações
+- [ ] Implementar empty states informativos
+- [ ] Adicionar confirmação para ações destrutivas
+- [ ] Melhorar responsividade mobile
+- [ ] Testar usabilidade geral
+
+### Módulo 8: Integração e Testes
+- [ ] Testar fluxo completo: busca → visualização → laudo → impressão
+- [ ] Validar permissões de acesso em todos os módulos
+- [ ] Testar com múltiplas unidades simultâneas
+- [ ] Verificar auditoria de todas as ações
+- [ ] Testar performance com grande volume de dados
+- [ ] Validar integração com PACS externo
+- [ ] Documentar APIs e fluxos implementados
