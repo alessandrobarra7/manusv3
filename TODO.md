@@ -308,3 +308,14 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [ ] Verificar formato da data sendo enviado ao backend (deve ser YYYYMMDD)
 - [ ] Corrigir conversão de formato YYYY-MM-DD para YYYYMMDD
 - [ ] Testar busca com data manual (ex: 20/02/2026)
+
+### 23/02/2026 - Implementar Busca por Período (CONCLUÍDO ✅)
+- [x] Implementar botão "Hoje" para buscar exames de hoje
+- [x] Implementar botão "7 dias" para buscar exames dos últimos 7 dias
+- [x] Implementar botão "30 dias" para buscar exames dos últimos 30 dias
+- [x] Implementar botão "Todos" para buscar todos os exames sem filtro de data
+- [x] Remover campo de data manual problemático
+- [x] Adicionar indicador visual do período selecionado (botão azul)
+- [x] Backend interpreta valores especiais: TODAY, LAST_7_DAYS, LAST_30_DAYS
+- [x] Testar todas as opções: Hoje (1 estudo), 7 Dias (9 estudos), 30 Dias (16 estudos), Todos (16 estudos)
+- **Solução**: Interface simplificada com botões de período ao invés de campo manual

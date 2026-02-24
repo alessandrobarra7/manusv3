@@ -12,13 +12,7 @@ import {
   Clock
 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 
 
 export function PacsQueryPage() {
@@ -92,6 +86,30 @@ export function PacsQueryPage() {
     });
   };
 
+  const handlePeriodChange = (period: string) => {
+    setFilters({ ...filters, period, studyDate: '' });
+    setIsQuerying(true);
+    
+    let studyDate = '';
+    if (period === 'today') {
+      studyDate = 'TODAY';
+    } else if (period === '7days') {
+      studyDate = 'LAST_7_DAYS';
+    } else if (period === '30days') {
+      studyDate = 'LAST_30_DAYS';
+    } else if (period === 'all') {
+      studyDate = ''; // Empty means no date filter
+    }
+    
+    queryPacs.mutate({
+      patientName: filters.patientName,
+      patientId: "",
+      modality: "ALL",
+      studyDate: studyDate,
+      accessionNumber: "",
+    });
+  };
+
   const handleVisualize = (study: any) => {
     toast.info(`Visualizador em desenvolvimento para: ${study.patientName}`);
   };
@@ -152,45 +170,40 @@ export function PacsQueryPage() {
             />
           </div>
 
-          {/* Date */}
-          <div className="w-48">
-            <label className="text-xs font-medium text-gray-700 mb-1 block">
-              Data
+          {/* Quick Period Filters */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-gray-700">
+              Período:
             </label>
-            <input
-              type="date"
-              value={filters.studyDate}
-              onChange={(e) => {
-                console.log('[Frontend] Date input onChange:', e.target.value);
-                setFilters({ ...filters, studyDate: e.target.value });
-              }}
-              className="h-9 text-sm flex w-full rounded-md border border-input bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
-
-          {/* Today Button */}
-          <Button 
-            variant="outline"
-            onClick={handleTodayExams}
-            className="h-9 px-4 text-sm"
-          >
-            <Calendar className="h-4 w-4 mr-2" />
-            Exames de Hoje
-          </Button>
-
-          {/* Period Dropdown */}
-          <div className="w-36">
-            <Select value={filters.period} onValueChange={(value) => setFilters({ ...filters, period: value })}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Período" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="today">Hoje</SelectItem>
-                <SelectItem value="7days">7 Dias</SelectItem>
-                <SelectItem value="30days">30 Dias</SelectItem>
-                <SelectItem value="all">Todos</SelectItem>
-              </SelectContent>
-            </Select>
+            <Button 
+              variant={filters.period === 'today' ? 'default' : 'outline'}
+              onClick={() => handlePeriodChange('today')}
+              className="h-9 px-3 text-sm"
+            >
+              <Calendar className="h-4 w-4 mr-1" />
+              Hoje
+            </Button>
+            <Button 
+              variant={filters.period === '7days' ? 'default' : 'outline'}
+              onClick={() => handlePeriodChange('7days')}
+              className="h-9 px-3 text-sm"
+            >
+              7 Dias
+            </Button>
+            <Button 
+              variant={filters.period === '30days' ? 'default' : 'outline'}
+              onClick={() => handlePeriodChange('30days')}
+              className="h-9 px-3 text-sm"
+            >
+              30 Dias
+            </Button>
+            <Button 
+              variant={filters.period === 'all' ? 'default' : 'outline'}
+              onClick={() => handlePeriodChange('all')}
+              className="h-9 px-3 text-sm"
+            >
+              Todos
+            </Button>
           </div>
 
           {/* Shift Button */}

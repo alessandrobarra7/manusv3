@@ -422,6 +422,24 @@ export const appRouter = router({
           const day = String(now.getDate()).padStart(2, '0');
           studyDate = `${year}${month}${day}`;
           console.log('[PACS Query] TODAY resolved to:', studyDate);
+        } else if (studyDate === 'LAST_7_DAYS') {
+          // Calculate date 7 days ago
+          const now = new Date();
+          const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          const year = sevenDaysAgo.getFullYear();
+          const month = String(sevenDaysAgo.getMonth() + 1).padStart(2, '0');
+          const day = String(sevenDaysAgo.getDate()).padStart(2, '0');
+          studyDate = `${year}${month}${day}-`; // Range format: YYYYMMDD- means from that date to today
+          console.log('[PACS Query] LAST_7_DAYS resolved to:', studyDate);
+        } else if (studyDate === 'LAST_30_DAYS') {
+          // Calculate date 30 days ago
+          const now = new Date();
+          const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          const year = thirtyDaysAgo.getFullYear();
+          const month = String(thirtyDaysAgo.getMonth() + 1).padStart(2, '0');
+          const day = String(thirtyDaysAgo.getDate()).padStart(2, '0');
+          studyDate = `${year}${month}${day}-`; // Range format: YYYYMMDD- means from that date to today
+          console.log('[PACS Query] LAST_30_DAYS resolved to:', studyDate);
         }
         
         // Prepare input for Python script
