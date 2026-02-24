@@ -72,14 +72,14 @@ export function PacsQueryPage() {
   };
 
   const handleTodayExams = () => {
-    const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
-    setFilters({ ...filters, studyDate: today, period: "today" });
+    // Send special value 'TODAY' to let backend calculate server's date
+    setFilters({ ...filters, studyDate: 'TODAY', period: "today" });
     setIsQuerying(true);
     queryPacs.mutate({
       patientName: "",
       patientId: "",
       modality: "ALL",
-      studyDate: today,
+      studyDate: "TODAY",
       accessionNumber: "",
     });
   };

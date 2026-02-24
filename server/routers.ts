@@ -412,6 +412,18 @@ export const appRouter = router({
           });
         }
         
+        // Handle special date values
+        let studyDate = input.studyDate;
+        if (studyDate === 'TODAY') {
+          // Use server's local date (not UTC)
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const day = String(now.getDate()).padStart(2, '0');
+          studyDate = `${year}${month}${day}`;
+          console.log('[PACS Query] TODAY resolved to:', studyDate);
+        }
+        
         // Prepare input for Python script
         const queryInput = {
           pacs_ip: unit.pacs_ip,
@@ -422,7 +434,7 @@ export const appRouter = router({
             patient_name: input.patientName,
             patient_id: input.patientId,
             modality: input.modality,
-            study_date: input.studyDate,
+            study_date: studyDate,
             accession_number: input.accessionNumber,
           },
         };
@@ -434,10 +446,12 @@ export const appRouter = router({
         
         try {
           const scriptPath = new URL('./dicom_query.sh', import.meta.url).pathname;
+          console.log('[PACS Query] Executing with input:', JSON.stringify(queryInput, null, 2));
           const { stdout, stderr } = await execAsync(
             `"${scriptPath}" '${JSON.stringify(queryInput)}'`,
-            { timeout: 30000 } // 30 second timeout
+            { timeout: 60000 } // 60 second timeout
           );
+          console.log('[PACS Query] Script stdout length:', stdout.length);
           
           if (stderr) {
             console.error('Python script stderr:', stderr);

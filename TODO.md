@@ -287,3 +287,18 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [ ] **PENDENTE**: Implementar limpeza automática de cache
 - [ ] **PENDENTE**: Adicionar indicador de progresso durante C-MOVE
 - [ ] **PENDENTE**: Implementar navegação entre séries/instâncias
+
+### 23/02/2026 - BUG: Consulta de Exames Parou de Funcionar
+- [ ] Diagnosticar problema (verificar logs, erros TypeScript, endpoint tRPC)
+- [ ] Corrigir erro identificado
+- [ ] Testar consulta novamente (buscar "TESTE")
+- [ ] Verificar se retorna 44 estudos como antes
+
+### 23/02/2026 - BUG: Busca por Data Não Funciona (RESOLVIDO ✅)
+- [x] Diagnosticar por que botão "Exames de Hoje" não retorna resultados
+- [x] Verificar se filtro de data está sendo enviado corretamente ao backend
+- [x] Identificar problema: navegador em UTC enviava data 24/02 enquanto servidor em EST estava em 23/02
+- [x] Corrigir lógica: frontend envia "TODAY" e backend calcula data no timezone do servidor
+- [x] Testar busca por data: 48 estudos encontrados com sucesso!
+- **Causa raiz**: Diferença de timezone entre navegador (GMT+0) e servidor (EST/GMT-5)
+- **Solução**: Backend interpreta valor especial "TODAY" e calcula data local do servidor
