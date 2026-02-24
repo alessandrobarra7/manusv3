@@ -302,3 +302,9 @@ Implementar todas as funcionalidades do frontend Lovable no PACS Portal, mantend
 - [x] Testar busca por data: 48 estudos encontrados com sucesso!
 - **Causa raiz**: Diferença de timezone entre navegador (GMT+0) e servidor (EST/GMT-5)
 - **Solução**: Backend interpreta valor especial "TODAY" e calcula data local do servidor
+
+### 23/02/2026 - BUG: Campo de Data Manual Não Funciona
+- [ ] Diagnosticar por que campo de data manual não retorna resultados
+- [ ] Verificar formato da data sendo enviado ao backend (deve ser YYYYMMDD)
+- [ ] Corrigir conversão de formato YYYY-MM-DD para YYYYMMDD
+- [ ] Testar busca com data manual (ex: 20/02/2026)

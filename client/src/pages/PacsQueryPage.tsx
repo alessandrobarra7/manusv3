@@ -61,12 +61,20 @@ export function PacsQueryPage() {
   });
 
   const handleSearch = () => {
+    console.log('[Frontend] filters.studyDate:', filters.studyDate);
     setIsQuerying(true);
+    // Convert date from YYYY-MM-DD to YYYYMMDD format for backend
+    let studyDate = filters.studyDate;
+    if (studyDate && studyDate.includes('-')) {
+      studyDate = studyDate.replace(/-/g, '');
+    }
+    console.log('[Frontend] Converted studyDate:', studyDate);
+    // Keep the original format in state for display
     queryPacs.mutate({
       patientName: filters.patientName,
       patientId: "",
       modality: "ALL",
-      studyDate: filters.studyDate,
+      studyDate: studyDate,
       accessionNumber: "",
     });
   };
@@ -149,11 +157,14 @@ export function PacsQueryPage() {
             <label className="text-xs font-medium text-gray-700 mb-1 block">
               Data
             </label>
-            <Input
+            <input
               type="date"
               value={filters.studyDate}
-              onChange={(e) => setFilters({ ...filters, studyDate: e.target.value })}
-              className="h-9 text-sm"
+              onChange={(e) => {
+                console.log('[Frontend] Date input onChange:', e.target.value);
+                setFilters({ ...filters, studyDate: e.target.value });
+              }}
+              className="h-9 text-sm flex w-full rounded-md border border-input bg-background px-3 py-2 ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -194,6 +205,7 @@ export function PacsQueryPage() {
 
           {/* Search Button */}
           <Button 
+            type="button"
             onClick={handleSearch} 
             disabled={isQuerying}
             className="h-9 px-6 text-sm"
